@@ -501,6 +501,24 @@ a {
   text-align: right;
 }
 
+.ai-note {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.ai-note a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.ai-note a:hover {
+  color: var(--accent);
+}
+
 .loading {
   max-width: var(--max-width);
   margin: 0 auto;

@@ -215,6 +215,7 @@
           ${prev ? `<a class="page-nav-link prev" href="#/${prev.id}">← ${escapeHtml(prev.title)}</a>` : "<span></span>"}
           ${next ? `<a class="page-nav-link next" href="#/${next.id}">${escapeHtml(next.title)} →</a>` : "<span></span>"}
         </nav>
+        <div class="ai-note">Drafted with AI assistance and reviewed for accuracy to the best of our knowledge — not a citation-grade source. <a href="#/about-this-content">How this content is made →</a></div>
       </article>`;
 
     document.getElementById("mark-complete").addEventListener("change", (e) => {

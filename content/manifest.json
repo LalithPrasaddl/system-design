@@ -11,6 +11,11 @@
           "file": "start-here/welcome.md"
         },
         {
+          "id": "about-this-content",
+          "title": "How This Content Was Made",
+          "file": "start-here/about-this-content.md"
+        },
+        {
           "id": "roadmap",
           "title": "Course Map",
           "file": "start-here/roadmap.md"
@@ -25,6 +30,103 @@
           "id": "client-server-networking",
           "title": "Client-Server Model & Networking Basics",
           "file": "foundations/client-server-networking.md"
+        },
+        {
+          "id": "latency-throughput",
+          "title": "Latency, Throughput, and the Numbers Everyone Should Know",
+          "file": "foundations/latency-throughput.md"
+        },
+        {
+          "id": "communication-styles",
+          "title": "Communication Styles: REST, RPC, GraphQL, Sync vs Async",
+          "file": "foundations/communication-styles.md"
+        }
+      ]
+    },
+    {
+      "id": "building-blocks",
+      "title": "2. Building Blocks",
+      "sections": [
+        {
+          "id": "scaling-fundamentals",
+          "title": "Scaling Fundamentals",
+          "file": "building-blocks/scaling-fundamentals.md"
+        },
+        {
+          "id": "load-balancing",
+          "title": "Load Balancing",
+          "file": "building-blocks/load-balancing.md"
+        },
+        {
+          "id": "caching",
+          "title": "Caching",
+          "file": "building-blocks/caching.md"
+        },
+        {
+          "id": "databases-relational",
+          "title": "Databases I — Relational Fundamentals",
+          "file": "building-blocks/databases-relational.md"
+        },
+        {
+          "id": "databases-nosql",
+          "title": "Databases II — NoSQL Models",
+          "file": "building-blocks/databases-nosql.md"
+        },
+        {
+          "id": "replication",
+          "title": "Replication",
+          "file": "building-blocks/replication.md"
+        },
+        {
+          "id": "partitioning-sharding",
+          "title": "Partitioning & Sharding",
+          "file": "building-blocks/partitioning-sharding.md"
+        },
+        {
+          "id": "consistency-cap",
+          "title": "Consistency Models & CAP/PACELC",
+          "file": "building-blocks/consistency-cap.md",
+          "branches": [
+            {
+              "id": "consensus",
+              "title": "Consensus (Raft/Paxos)",
+              "file": "building-blocks/consensus.md"
+            }
+          ]
+        },
+        {
+          "id": "message-queues",
+          "title": "Message Queues & Event-Driven Architecture",
+          "file": "building-blocks/message-queues.md",
+          "branches": [
+            {
+              "id": "log-based-systems",
+              "title": "Log-Based Systems (Kafka Internals)",
+              "file": "building-blocks/log-based-systems.md"
+            }
+          ]
+        },
+        {
+          "id": "storage-engines",
+          "title": "Storage Engines",
+          "file": "building-blocks/storage-engines.md",
+          "branches": [
+            {
+              "id": "lsm-vs-btree",
+              "title": "LSM-Trees vs. B-Trees",
+              "file": "building-blocks/lsm-vs-btree.md"
+            }
+          ]
+        },
+        {
+          "id": "rate-limiting",
+          "title": "Rate Limiting & Backpressure",
+          "file": "building-blocks/rate-limiting.md"
+        },
+        {
+          "id": "search-indexing",
+          "title": "Search & Indexing at Scale",
+          "file": "building-blocks/search-indexing.md"
         }
       ]
     }
