@@ -1,0 +1,32 @@
+{
+  "siteTitle": "System Design, Learned",
+  "modules": [
+    {
+      "id": "start-here",
+      "title": "Start Here",
+      "sections": [
+        {
+          "id": "welcome",
+          "title": "Welcome & How to Use This",
+          "file": "start-here/welcome.md"
+        },
+        {
+          "id": "roadmap",
+          "title": "Course Map",
+          "file": "start-here/roadmap.md"
+        }
+      ]
+    },
+    {
+      "id": "foundations",
+      "title": "1. Foundations",
+      "sections": [
+        {
+          "id": "client-server-networking",
+          "title": "Client-Server Model & Networking Basics",
+          "file": "foundations/client-server-networking.md"
+        }
+      ]
+    }
+  ]
+}

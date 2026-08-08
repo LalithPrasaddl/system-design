@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>System Design, Learned</title>
+  <meta name="description" content="An interactive, browsable path through system design — from first principles to real architectures." />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+
+  <div class="layout">
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <a href="#/" class="brand">System Design</a>
+        <div class="progress-summary" id="progress-summary"></div>
+      </div>
+      <div id="nav-tree" class="nav-tree" aria-label="Course navigation"></div>
+    </nav>
+
+    <div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+    <main id="content" class="content" tabindex="-1">
+      <div class="loading">Loading…</div>
+    </main>
+  </div>
+
+  <script src="assets/js/vendor/marked.min.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
