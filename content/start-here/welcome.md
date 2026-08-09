@@ -12,8 +12,9 @@ Each topic explains the underlying mechanics — what's actually happening on th
 
 1. **Foundations** — the vocabulary and mental models everything else builds on: how computers talk to each other, what latency and throughput really mean, how services communicate.
 2. **Building Blocks** — the components you combine to design real systems: caching, load balancing, databases, replication, partitioning, queues, consensus, and more. Some topics include an optional **"go deeper"** branch for the mechanism behind the component, beyond what's needed to use it well in a design.
-3. **Case Studies** — applying the building blocks to real systems, starting from the smallest possible version of each system and adding pieces as its scale requirements grow.
-4. **Wrap-Up** — a framework for reasoning about trade-offs under ambiguity, plus a glossary.
+3. **Frontend Building Blocks** — the same kind of components, on the other side of the request: rendering strategy, client-side caching and storage, CDNs, real-time delivery, and how a frontend scales across teams.
+4. **Case Studies** — applying the building blocks to real systems, starting from the smallest possible version of each system and adding pieces as its scale requirements grow.
+5. **Wrap-Up** — a framework for reasoning about trade-offs under ambiguity, plus a glossary.
 
 ## How to use it
 

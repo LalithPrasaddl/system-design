@@ -129,6 +129,73 @@
           "file": "building-blocks/search-indexing.md"
         }
       ]
+    },
+    {
+      "id": "frontend-building-blocks",
+      "title": "3. Frontend Building Blocks",
+      "sections": [
+        {
+          "id": "rendering-strategies",
+          "title": "Rendering Strategies",
+          "file": "frontend-building-blocks/rendering-strategies.md"
+        },
+        {
+          "id": "rendering-performance",
+          "title": "Critical Rendering Path & Performance",
+          "file": "frontend-building-blocks/rendering-performance.md"
+        },
+        {
+          "id": "client-data-caching",
+          "title": "Client-Side Data & Caching",
+          "file": "frontend-building-blocks/client-data-caching.md"
+        },
+        {
+          "id": "client-storage",
+          "title": "Client-Side Storage",
+          "file": "frontend-building-blocks/client-storage.md"
+        },
+        {
+          "id": "cdn-edge-delivery",
+          "title": "CDNs & Edge Delivery",
+          "file": "frontend-building-blocks/cdn-edge-delivery.md"
+        },
+        {
+          "id": "realtime-delivery",
+          "title": "Real-Time Delivery",
+          "file": "frontend-building-blocks/realtime-delivery.md"
+        },
+        {
+          "id": "offline-resilience",
+          "title": "Offline & Resilience",
+          "file": "frontend-building-blocks/offline-resilience.md"
+        },
+        {
+          "id": "bff-api-shape",
+          "title": "Backend-for-Frontend & API Shape",
+          "file": "frontend-building-blocks/bff-api-shape.md"
+        },
+        {
+          "id": "frontend-security",
+          "title": "Frontend Security",
+          "file": "frontend-building-blocks/frontend-security.md"
+        },
+        {
+          "id": "micro-frontends",
+          "title": "Micro-Frontends & Multi-Team Scaling",
+          "file": "frontend-building-blocks/micro-frontends.md"
+        }
+      ]
+    },
+    {
+      "id": "case-studies",
+      "title": "4. Case Studies",
+      "sections": [
+        {
+          "id": "url-shortener",
+          "title": "URL Shortener",
+          "file": "case-studies/url-shortener.md"
+        }
+      ]
     }
   ]
 }

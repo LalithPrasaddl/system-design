@@ -26,9 +26,22 @@ The components you combine to design real systems.
 - Rate Limiting & Backpressure
 - Search & Indexing at Scale
 
-## 3. Case Studies
+## 3. Frontend Building Blocks
+The same kind of components as above, but on the client side of the request.
+- Rendering Strategies
+- Critical Rendering Path & Performance
+- Client-Side Data & Caching
+- Client-Side Storage
+- CDNs & Edge Delivery
+- Real-Time Delivery
+- Offline & Resilience
+- Backend-for-Frontend & API Shape
+- Frontend Security
+- Micro-Frontends & Multi-Team Scaling
+
+## 4. Case Studies
 Real systems, built up from the smallest working version to a design that holds under scale — a URL shortener, a rate limiter, a chat system, a news feed, a distributed cache, a ride-hailing dispatch system, a video-streaming platform, and more. Each one is interactive: you can see the system's components and data flow directly, and see what changes (and what breaks) as pieces are added or removed.
 
-## 4. Wrap-Up
+## 5. Wrap-Up
 - A Framework for Reasoning Under Ambiguity
 - Glossary
