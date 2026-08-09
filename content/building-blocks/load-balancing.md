@@ -64,3 +64,12 @@ It's worth noticing the load balancer is now a single thing every request passes
 ## Why this matters for system design
 
 A load balancer is what actually makes horizontal scaling real, rather than theoretical: it's the piece that takes "we have five servers" and turns it into "clients experience one reliable service." Every case study later in this course that involves more than one server instance has a load balancer (explicit or implied) doing exactly this job.
+
+## Real-world examples
+
+- **NGINX** and **HAProxy** — software load balancers that can operate at both L4 and L7, commonly run in front of a fleet of application servers.
+- **Envoy** — an L7 proxy built for service-to-service traffic, often deployed as the data plane in a service mesh (e.g. Istio).
+- **AWS Elastic Load Balancing** — a managed offering with separate products for L7 routing (Application Load Balancer) and L4 routing (Network Load Balancer).
+- **Google Cloud Load Balancing** and **Azure Load Balancer** — the equivalent managed load-balancing services on their respective clouds.
+- **Kubernetes Service (`type: LoadBalancer`) and Ingress** — load-balancing constructs built into Kubernetes, typically backed by one of the load balancers above.
+- **DNS-based load balancing** (e.g. AWS Route 53, Cloudflare) — distributes traffic at the DNS resolution step, before a client ever reaches a specific load balancer; often used to route across load balancers in different regions.

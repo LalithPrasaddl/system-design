@@ -68,3 +68,10 @@ Because cross-shard operations are expensive or impossible, the single most cons
 ## Why this matters for system design
 
 Partitioning is the answer to "the data (or the write load) is too big for one machine," which replication alone can never solve — replication only ever gives you more identical copies, not more capacity. Nearly every case study in this course that involves data at real scale eventually needs both: replication for availability and read scaling, partitioning for capacity and write throughput, layered together.
+
+## Real-world examples
+
+- **MongoDB, Cassandra, Amazon DynamoDB** — databases with built-in, native sharding support.
+- **Vitess** — sharding middleware for MySQL, originally built at YouTube.
+- **Citus** — a PostgreSQL extension that adds sharding to a standard PostgreSQL deployment.
+- **Consistent hashing** specifically is used directly by Cassandra and DynamoDB for data placement, and by many CDN and cache client libraries for routing to a specific node.

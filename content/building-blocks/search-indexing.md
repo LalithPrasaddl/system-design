@@ -61,3 +61,10 @@ A search index is almost always a **derived** data store — built from data who
 ## Why this matters for system design
 
 "Add search" is one of the most common features that turns a straightforward CRUD design into a genuinely multi-component system: a purpose-built inverted index, a scatter-gather query pattern across shards, a ranking function, and an asynchronous pipeline keeping it in sync with the source of truth — each one a direct application of a building block from earlier in this module, combined to solve a problem none of them solve individually.
+
+## Real-world examples
+
+- **Elasticsearch** and **OpenSearch** — the most widely used search engines built on the inverted-index model, both built on the Apache Lucene library.
+- **Apache Solr** — another Lucene-based search platform, historically common before Elasticsearch's rise.
+- **Algolia** and **Typesense** — hosted search-as-a-service products built around the same inverted-index and ranking principles.
+- **PostgreSQL full-text search** — a lighter-weight inverted-index implementation built directly into a relational database, useful when a dedicated search cluster is more than a workload needs.

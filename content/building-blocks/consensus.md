@@ -66,3 +66,11 @@ Consensus algorithms are rarely something you implement yourself — you reach f
 ## Why this matters for system design
 
 You will very rarely implement Raft or Paxos yourself in practice — but recognizing when a design needs consensus (anywhere you need multiple nodes to agree on one fact, with no room for split-brain) versus when it doesn't (most ordinary replication, where eventual convergence is fine) is a genuinely important judgment call. Reaching for a battle-tested consensus-backed system (etcd, ZooKeeper, or a database with Raft built in) for that specific need, rather than hand-rolling leader election with ad hoc heartbeats and timeouts, is one of the more consequential "don't reinvent this" lessons in distributed systems.
+
+## Real-world examples
+
+- **etcd** — a distributed key-value store built directly on Raft; used by Kubernetes to store all cluster state.
+- **Apache ZooKeeper** — a coordination service used for leader election and shared configuration across many other distributed systems, using its own Paxos-derived protocol (ZAB).
+- **HashiCorp Consul** — service discovery and configuration, also built on Raft.
+- **CockroachDB** and **TiKV** — distributed databases that use Raft internally for per-range leader election and replication.
+- **Google Chubby** and **Google Spanner** — early and influential Paxos-based systems for distributed locking and globally consistent storage.

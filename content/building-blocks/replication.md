@@ -72,3 +72,10 @@ Both approaches solve the single-leader failover problem by removing single poin
 ## Why this matters for system design
 
 Replication is the mechanism behind almost every "highly available" claim you'll see in a system design: it's what allows a system to survive a machine (or even a whole data center) failing without losing data or going down. But it's never free — every replication strategy here trades some combination of write latency, operational complexity, or consistency guarantees to get that availability, and picking the right one means being honest about which of those costs your specific system can actually afford.
+
+## Real-world examples
+
+- **PostgreSQL and MySQL** — support leader-follower replication natively, in both synchronous and asynchronous modes.
+- **MongoDB** — uses a leader-follower model internally, called replica sets.
+- **Cassandra and Amazon DynamoDB** — leaderless replication, using quorum reads/writes to reconcile any differences between replicas.
+- **CockroachDB and Google Spanner** — Raft/Paxos-backed distributed databases that replicate across multiple regions.

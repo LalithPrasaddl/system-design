@@ -61,3 +61,10 @@ Each partition is itself replicated across multiple brokers using essentially th
 ## Why this matters for system design
 
 The log-as-source-of-truth model underlies a broader pattern worth recognizing by name: **event sourcing** — storing every change as an immutable event in a log, and deriving current state by replaying it, rather than only storing current state and overwriting it on each update. Kafka's specific mechanics (partitions for scale, consumer groups for parallel independent consumption, retention instead of delete-on-read) are worth understanding not just because Kafka itself is common in real architectures, but because the underlying idea — an ordered, replayable, multi-consumer log — reappears as the backbone of write-ahead logs in databases (mentioned again in Storage Engines), audit trails, and any system that needs to let multiple independent parts of an architecture react to the same sequence of facts at their own pace.
+
+## Real-world examples
+
+- **Apache Kafka** — the system this page describes directly, and the de facto standard for the partitioned-log model.
+- **Amazon Kinesis** — a managed, similarly log-structured streaming service on AWS.
+- **Apache Pulsar** — an alternative log-based messaging system built around the same partitioned-log model, with storage decoupled from the serving layer.
+- **Redpanda** — a newer streaming platform that's API-compatible with Kafka, built for lower operational overhead.

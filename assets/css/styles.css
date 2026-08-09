@@ -87,6 +87,67 @@ a {
   color: var(--text-muted);
 }
 
+.tracking-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tracking-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.tracking-toggle-track {
+  position: relative;
+  width: 30px;
+  height: 17px;
+  border-radius: 999px;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.tracking-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease;
+}
+
+.tracking-toggle input:checked + .tracking-toggle-track {
+  background: var(--accent);
+}
+
+.tracking-toggle input:checked + .tracking-toggle-track::after {
+  transform: translateX(13px);
+}
+
+.tracking-toggle input:focus-visible + .tracking-toggle-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Progress tracking is opt-in — hide all completion UI until enabled */
+body:not(.tracking-on) .progress-summary,
+body:not(.tracking-on) .nav-check,
+body:not(.tracking-on) .complete-row {
+  display: none;
+}
+
 .nav-tree {
   padding: 0.75rem 0.75rem 0;
 }
@@ -166,27 +227,17 @@ a {
   font-size: 0.85rem;
 }
 
-.nav-branch-toggle {
-  display: block;
-  width: calc(100% - 0.5rem);
-  margin: 0.15rem 0.25rem;
-  padding: 0.35rem 0.5rem;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  font-style: italic;
-  text-align: left;
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-.nav-branch-toggle:hover {
+.nav-optional-badge {
+  margin-left: auto;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
   background: var(--accent-soft);
-}
-
-.nav-branch-list.is-collapsed {
-  display: none;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
 }
 
 .sidebar-scrim {

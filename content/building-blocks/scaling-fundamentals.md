@@ -59,3 +59,9 @@ Reads are usually easy to scale horizontally — you can serve the same data fro
 ## Why this matters for system design
 
 Almost every remaining topic in this course is a specific technique for horizontal scaling done well: load balancers decide how to spread requests, caches reduce how often you need to touch the real data store, replication and partitioning scale a database past what one machine can hold, and queues let you scale write-side work by processing it asynchronously instead of immediately. Keep the vertical/horizontal distinction and the statelessness requirement in mind — they're the frame everything else fits into.
+
+## Real-world examples
+
+- **Vertical scaling** — resizing a single AWS EC2 instance, Google Compute Engine VM, or database instance to a larger tier.
+- **Horizontal scaling** — AWS Auto Scaling groups and the Kubernetes Horizontal Pod Autoscaler both add or remove server instances automatically based on load.
+- **Externalizing state** — moving session data into Redis or Memcached, or into a client-side JWT, are both common ways of keeping application servers stateless so any instance can serve any request.

@@ -61,3 +61,10 @@ Isolation in particular has real cost: guaranteeing transactions never interfere
 ## Why this matters for system design
 
 The relational model's real strength is that it makes strong correctness guarantees the default, not something you have to build yourself: constraints, joins, and ACID transactions handle a large class of bugs (partial writes, duplicated or orphaned data, races between concurrent updates) before they ever reach your application code. That reliability has a cost in flexibility and horizontal scalability — themes covered directly in the next few sections (NoSQL models, replication, and partitioning) — but for data where correctness matters more than raw write throughput (financial records, inventory, anything with real invariants to enforce), it's usually still the right starting point.
+
+## Real-world examples
+
+- **PostgreSQL** and **MySQL** — the two most widely used open-source relational databases.
+- **Oracle Database** and **Microsoft SQL Server** — long-established commercial relational databases common in enterprise environments.
+- **SQLite** — a relational database that runs as an embedded library inside an application rather than a separate server process, common in mobile apps and local tooling.
+- **Amazon Aurora, Google Cloud SQL, Azure SQL Database** — managed relational database services built on top of engines like PostgreSQL, MySQL, and SQL Server.

@@ -28,12 +28,14 @@ The theorem is easy to misread as "pick any two of three," but in a real distrib
   <text x="470" y="75" text-anchor="middle" class="d-label-muted" font-size="11">network link is down</text>
   <line x1="220" y1="65" x2="380" y2="65" class="d-marker-line"></line>
   <text x="300" y="55" text-anchor="middle" class="d-label" font-size="14">✕</text>
-  <rect x="60" y="130" width="220" height="50" rx="6" class="d-note"></rect>
-  <text x="170" y="150" text-anchor="middle" class="d-note-text">CP choice:</text>
-  <text x="170" y="168" text-anchor="middle" class="d-note-text" font-size="11">Region B refuses writes/reads it can't verify are current</text>
-  <rect x="320" y="130" width="240" height="50" rx="6" class="d-note"></rect>
+  <rect x="30" y="130" width="260" height="66" rx="6" class="d-note"></rect>
+  <text x="160" y="150" text-anchor="middle" class="d-note-text">CP choice:</text>
+  <text x="160" y="167" text-anchor="middle" class="d-note-text" font-size="11">Region B refuses writes/reads</text>
+  <text x="160" y="181" text-anchor="middle" class="d-note-text" font-size="11">it can't verify are current</text>
+  <rect x="310" y="130" width="260" height="66" rx="6" class="d-note"></rect>
   <text x="440" y="150" text-anchor="middle" class="d-note-text">AP choice:</text>
-  <text x="440" y="168" text-anchor="middle" class="d-note-text" font-size="11">Region B keeps serving, possibly stale or diverging data</text>
+  <text x="440" y="167" text-anchor="middle" class="d-note-text" font-size="11">Region B keeps serving, possibly</text>
+  <text x="440" y="181" text-anchor="middle" class="d-note-text" font-size="11">stale or diverging data</text>
 </svg>
 <div class="diagram-caption">Once Region B can't reach Region A, it has exactly two options: stop answering (protect consistency, sacrifice availability) or keep answering with what it locally has (protect availability, sacrifice consistency). There is no third option that gives it both.</div>
 </div>
@@ -61,3 +63,9 @@ Most managed databases let you choose a point on this spectrum per-operation rat
 ## Why this matters for system design
 
 This is the single most-tested judgment call in system design, precisely because it's a real trade-off, not a solved problem — there is no configuration that gives you strong consistency, full availability under partition, and no latency cost, all at once. Every case study later in this course that involves replicated or partitioned data will implicitly or explicitly answer this question, and the "right" answer is always about the data's actual requirements, never a default to reach for out of habit.
+
+## Real-world examples
+
+- **CP-leaning systems** — HBase, MongoDB (in its default configuration), etcd, ZooKeeper, and a single-leader relational database configured to refuse stale reads from a lagging replica.
+- **AP-leaning systems** — Cassandra, Amazon DynamoDB, Riak, and CouchDB, all of which favor staying available and reconciling any divergence between copies after the fact.
+- **Tunable per-operation consistency** — Amazon DynamoDB, Azure Cosmos DB, and Cassandra all let you choose a consistency level on individual reads/writes rather than locking the whole system to one end of the spectrum.

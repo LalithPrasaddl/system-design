@@ -74,3 +74,10 @@ It's worth explicitly tracing through what a cache actually is, and isn't, respo
 ## Why this matters for system design
 
 Caching is usually the single highest-leverage tool for handling read-heavy load, precisely because most real-world data access is skewed — a small number of items (a trending post, a popular product) account for a disproportionate share of requests, so caching even a small hot set can absorb most of the traffic. It's also the clearest illustration of a trade-off that recurs constantly in this course: caching buys speed by accepting the possibility of staleness, and how much staleness is tolerable is a decision about the data, not a property of caching itself.
+
+## Real-world examples
+
+- **Redis** and **Memcached** — the standard choices for an application-level in-memory cache sitting between application servers and a database.
+- **Cloudflare, Akamai, Amazon CloudFront** — CDNs that cache static content at edge locations close to users.
+- **Varnish** — an HTTP cache/reverse proxy that caches whole HTTP responses in front of a web application.
+- **Browser HTTP caching** (via `Cache-Control` and `ETag` headers) — the client-side cache layer built into every browser rather than a separate product.

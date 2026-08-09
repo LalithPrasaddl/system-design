@@ -3,6 +3,7 @@
 
   const CONTENT_ROOT = "content/";
   const PROGRESS_KEY = "sd-progress-v1";
+  const TRACKING_KEY = "sd-track-progress-v1";
 
   const contentEl = document.getElementById("content");
   const navTreeEl = document.getElementById("nav-tree");
@@ -10,6 +11,7 @@
   const sidebarEl = document.getElementById("sidebar");
   const sidebarToggle = document.getElementById("sidebar-toggle");
   const sidebarScrim = document.getElementById("sidebar-scrim");
+  const trackingToggleInput = document.getElementById("tracking-toggle-input");
 
   /** @type {{modules: Array}} */
   let manifest = null;
@@ -44,6 +46,15 @@
     saveProgress(progress);
     renderProgressSummary();
     updateNavCompletionMarks();
+  }
+
+  function isTrackingEnabled() {
+    return localStorage.getItem(TRACKING_KEY) === "1";
+  }
+
+  function setTrackingEnabled(value) {
+    localStorage.setItem(TRACKING_KEY, value ? "1" : "0");
+    document.body.classList.toggle("tracking-on", value);
   }
 
   function renderProgressSummary() {
@@ -89,32 +100,9 @@
       mod.sections.forEach((sec) => {
         list.appendChild(buildNavItem(sec, false));
 
-        if (sec.branches && sec.branches.length) {
-          const branchWrap = document.createElement("li");
-          branchWrap.className = "nav-branch-wrap";
-
-          const branchToggle = document.createElement("button");
-          branchToggle.type = "button";
-          branchToggle.className = "nav-branch-toggle";
-          branchToggle.textContent = "Go deeper (optional)";
-          branchToggle.setAttribute("aria-expanded", "false");
-
-          const branchList = document.createElement("ul");
-          branchList.className = "nav-list nav-branch-list is-collapsed";
-
-          sec.branches.forEach((branch) => {
-            branchList.appendChild(buildNavItem(branch, true));
-          });
-
-          branchToggle.addEventListener("click", () => {
-            const collapsed = branchList.classList.toggle("is-collapsed");
-            branchToggle.setAttribute("aria-expanded", String(!collapsed));
-          });
-
-          branchWrap.appendChild(branchToggle);
-          branchWrap.appendChild(branchList);
-          list.appendChild(branchWrap);
-        }
+        (sec.branches || []).forEach((branch) => {
+          list.appendChild(buildNavItem(branch, true));
+        });
       });
 
       group.appendChild(list);
@@ -140,6 +128,14 @@
 
     link.appendChild(check);
     link.appendChild(label);
+
+    if (isBranch) {
+      const badge = document.createElement("span");
+      badge.className = "nav-optional-badge";
+      badge.textContent = "Optional";
+      link.appendChild(badge);
+    }
+
     li.appendChild(link);
     return li;
   }
@@ -148,21 +144,6 @@
     navTreeEl.querySelectorAll(".nav-item").forEach((el) => {
       el.classList.toggle("is-active", el.getAttribute("data-section-id") === id);
     });
-    // Expand branch list if active item lives inside one
-    const activeEl = navTreeEl.querySelector(`.nav-item[data-section-id="${cssEscape(id)}"]`);
-    if (activeEl && activeEl.classList.contains("nav-item-branch")) {
-      const branchList = activeEl.closest(".nav-branch-list");
-      if (branchList) {
-        branchList.classList.remove("is-collapsed");
-        const wrap = branchList.closest(".nav-branch-wrap");
-        const toggle = wrap && wrap.querySelector(".nav-branch-toggle");
-        if (toggle) toggle.setAttribute("aria-expanded", "true");
-      }
-    }
-  }
-
-  function cssEscape(s) {
-    return window.CSS && CSS.escape ? CSS.escape(s) : s.replace(/"/g, '\\"');
   }
 
   function renderNotFound() {
@@ -266,6 +247,12 @@
   sidebarScrim.addEventListener("click", closeSidebar);
 
   async function init() {
+    trackingToggleInput.checked = isTrackingEnabled();
+    document.body.classList.toggle("tracking-on", trackingToggleInput.checked);
+    trackingToggleInput.addEventListener("change", (e) => {
+      setTrackingEnabled(e.target.checked);
+    });
+
     try {
       const res = await fetch(CONTENT_ROOT + "manifest.json", { cache: "no-cache" });
       manifest = await res.json();

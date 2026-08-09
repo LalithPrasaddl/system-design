@@ -20,3 +20,9 @@ The full mechanics and trade-off between these two is substantial enough to warr
 ## Why this matters for system design
 
 When you pick a database in Databases I or II, you're often implicitly also picking a storage engine philosophy, and that choice shows up directly in production behavior: a write-heavy workload (logging, metrics, event ingestion) tends to perform very differently on an LSM-based engine than a B-tree-based one, even if both databases expose the exact same query language on top. Knowing that this layer exists — and that "which database" and "which storage engine" are two separate decisions, sometimes made for you by the database's design, sometimes configurable within it — is what lets you explain *why* two seemingly similar databases behave differently under the same load, rather than only observing that they do.
+
+## Real-world examples
+
+- **B-tree based** — PostgreSQL, MySQL's InnoDB, SQLite.
+- **LSM-tree based** — Cassandra, RocksDB, HBase.
+- **WiredTiger** — MongoDB's default storage engine, itself capable of both B-tree and LSM-style configurations, and a good example of the model/engine split described above.

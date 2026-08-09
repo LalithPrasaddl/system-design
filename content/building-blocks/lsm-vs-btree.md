@@ -78,3 +78,9 @@ A common optimization worth knowing by name: **Bloom filters** — a compact, pr
 ## Why this matters for system design
 
 This is the same read/write asymmetry from Scaling Fundamentals, showing up again at the disk layer: optimizing for fast writes (LSM) costs something on the read side, and optimizing for fast, simple reads (B-tree) costs something on the write side — there is no structure that's simply better at both. When a workload is described as extremely write-heavy (metrics ingestion, logging, event streams — notice the overlap with what wide-column stores and Kafka were built for), that's usually a strong signal an LSM-based engine is the right underlying choice, independent of whatever data model or query language sits on top of it.
+
+## Real-world examples
+
+- **B-tree engines** — PostgreSQL, MySQL's InnoDB, SQLite.
+- **LSM-tree engines** — Cassandra, HBase, LevelDB.
+- **RocksDB** — an embeddable LSM-tree storage engine worth knowing by name beyond any one database: other systems (CockroachDB, parts of Kafka Streams) build directly on top of it rather than writing their own from scratch.

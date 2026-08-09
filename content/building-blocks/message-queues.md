@@ -61,3 +61,10 @@ The trade-off is traceability: in a direct-call architecture, "what happens when
 ## Why this matters for system design
 
 Message queues are the standard tool for turning "this has to happen, but not necessarily right now, in this exact request" into a reliable, scalable part of a design — and event-driven architecture is what you get when that idea is applied broadly across a whole system rather than one workflow at a time. Nearly every non-trivial case study later in this course uses a queue somewhere: anywhere a slow, non-critical-path task shows up (sending notifications, processing uploads, updating a search index after a write), a queue is usually the right answer.
+
+## Real-world examples
+
+- **RabbitMQ** — a widely used message broker implementing traditional queue semantics, with topic-style fan-out available via exchanges.
+- **Apache Kafka** — a log-based system frequently used as a message broker/event bus (the optional deep dive on this page covers exactly how it differs from a traditional queue).
+- **Amazon SQS** — a managed queue service; **Amazon SNS** — a managed pub/sub topic service, often paired with SQS.
+- **Google Cloud Pub/Sub** and **Azure Service Bus** — the equivalent managed messaging services on their respective clouds.

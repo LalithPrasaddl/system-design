@@ -68,3 +68,9 @@ The alternative to backpressure isn't "no problem happens" — it's the problem 
 ## Why this matters for system design
 
 Rate limiting and backpressure are both instances of the same underlying principle: a system that can clearly say "no, not right now" to excess demand is more reliable than one that tries to accept everything and silently degrades. Every case study in this course that's exposed to unpredictable, potentially adversarial, or simply bursty real-world traffic needs some version of this — the specific algorithm matters less than recognizing where the limit needs to be enforced, and what should happen to a request that hits it.
+
+## Real-world examples
+
+- **Redis** — the common shared store for tracking rate-limit counters across multiple service instances (via `INCR` and TTLs, or purpose-built libraries).
+- **NGINX** and **Envoy** — reverse proxies with built-in rate-limiting modules, often enforcing limits before a request reaches an application server.
+- **Amazon API Gateway, Cloudflare, Kong** — API gateway/edge products with rate limiting as a built-in feature, commonly enforced per API key.

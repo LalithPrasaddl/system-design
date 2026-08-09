@@ -89,3 +89,10 @@ Real systems very often use more than one of these at once — a relational data
 ## Why this matters for system design
 
 The question "SQL or NoSQL" is really the wrong question — the real question is what shape your data takes, how it's actually queried, and which guarantees (strict schema and joins, or flexibility and horizontal write scale) matter more for that specific piece of data. Every model here is a genuine trade-off, not a strictly better or worse option than the relational model from the previous section — which is exactly why picking the right one for a given case study, later in this course, is a real design decision and not a formality.
+
+## Real-world examples
+
+- **Key-value** — Redis, Amazon DynamoDB, Memcached.
+- **Document** — MongoDB, Couchbase, Amazon DocumentDB.
+- **Wide-column** — Cassandra, HBase, Google Bigtable.
+- **Graph** — Neo4j, Amazon Neptune, ArangoDB.
