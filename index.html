@@ -14,6 +14,11 @@
     <nav id="sidebar" class="sidebar">
       <div class="sidebar-header">
         <a href="#/" class="brand">System Design</a>
+        <button type="button" id="search-trigger" class="search-trigger" aria-haspopup="dialog">
+          <span class="search-trigger-icon" aria-hidden="true">🔎</span>
+          <span class="search-trigger-label">Search</span>
+          <span class="search-trigger-kbd" id="search-trigger-kbd" aria-hidden="true">Ctrl K</span>
+        </button>
         <label class="tracking-toggle">
           <input type="checkbox" id="tracking-toggle-input" />
           <span class="tracking-toggle-track" aria-hidden="true"></span>
@@ -29,6 +34,17 @@
     <main id="content" class="content" tabindex="-1">
       <div class="loading">Loading…</div>
     </main>
+  </div>
+
+  <div id="search-overlay" class="search-overlay is-hidden">
+    <div class="search-panel" role="dialog" aria-modal="true" aria-label="Search course content">
+      <div class="search-input-row">
+        <span class="search-input-icon" aria-hidden="true">🔎</span>
+        <input type="text" id="search-input" class="search-input" placeholder="Search topics, terms, concepts…" autocomplete="off" spellcheck="false" />
+        <button type="button" id="search-close" class="search-close" aria-label="Close search">Esc</button>
+      </div>
+      <div id="search-results" class="search-results" role="listbox" aria-label="Search results"></div>
+    </div>
   </div>
 
   <script src="assets/js/vendor/marked.min.js"></script>

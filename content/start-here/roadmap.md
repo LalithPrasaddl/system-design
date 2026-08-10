@@ -11,20 +11,27 @@ The vocabulary and mental models everything else depends on.
 ## 2. Building Blocks
 The components you combine to design real systems.
 - Scaling Fundamentals
+- Service Decomposition
 - Load Balancing
 - Caching
 - Databases I — Relational Fundamentals
 - Databases II — NoSQL Models
 - Replication
 - Partitioning & Sharding
+- Multi-Region & Disaster Recovery
 - Consistency Models & CAP/PACELC
   - *Go deeper:* Consensus (Raft/Paxos)
+- Distributed Locking & Leader Election
 - Message Queues & Event-Driven Architecture
   - *Go deeper:* Log-Based Systems (Kafka Internals)
+- Batch vs. Stream Processing
+- Idempotency & Exactly-Once Delivery
 - Storage Engines
   - *Go deeper:* LSM-Trees vs B-Trees
 - Rate Limiting & Backpressure
+- Security & Authentication
 - Search & Indexing at Scale
+- Observability
 
 ## 3. Frontend Building Blocks
 The same kind of components as above, but on the client side of the request.

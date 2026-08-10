@@ -53,6 +53,11 @@
           "file": "building-blocks/scaling-fundamentals.md"
         },
         {
+          "id": "service-decomposition",
+          "title": "Service Decomposition",
+          "file": "building-blocks/service-decomposition.md"
+        },
+        {
           "id": "load-balancing",
           "title": "Load Balancing",
           "file": "building-blocks/load-balancing.md"
@@ -83,6 +88,11 @@
           "file": "building-blocks/partitioning-sharding.md"
         },
         {
+          "id": "multi-region-dr",
+          "title": "Multi-Region & Disaster Recovery",
+          "file": "building-blocks/multi-region-dr.md"
+        },
+        {
           "id": "consistency-cap",
           "title": "Consistency Models & CAP/PACELC",
           "file": "building-blocks/consistency-cap.md",
@@ -95,6 +105,11 @@
           ]
         },
         {
+          "id": "distributed-locking",
+          "title": "Distributed Locking & Leader Election",
+          "file": "building-blocks/distributed-locking.md"
+        },
+        {
           "id": "message-queues",
           "title": "Message Queues & Event-Driven Architecture",
           "file": "building-blocks/message-queues.md",
@@ -105,6 +120,16 @@
               "file": "building-blocks/log-based-systems.md"
             }
           ]
+        },
+        {
+          "id": "batch-vs-stream",
+          "title": "Batch vs. Stream Processing",
+          "file": "building-blocks/batch-vs-stream.md"
+        },
+        {
+          "id": "idempotency",
+          "title": "Idempotency & Exactly-Once Delivery",
+          "file": "building-blocks/idempotency.md"
         },
         {
           "id": "storage-engines",
@@ -124,9 +149,19 @@
           "file": "building-blocks/rate-limiting.md"
         },
         {
+          "id": "security-authentication",
+          "title": "Security & Authentication",
+          "file": "building-blocks/security-authentication.md"
+        },
+        {
           "id": "search-indexing",
           "title": "Search & Indexing at Scale",
           "file": "building-blocks/search-indexing.md"
+        },
+        {
+          "id": "observability",
+          "title": "Observability",
+          "file": "building-blocks/observability.md"
         }
       ]
     },

@@ -13,6 +13,12 @@
   const sidebarToggle = document.getElementById("sidebar-toggle");
   const sidebarScrim = document.getElementById("sidebar-scrim");
   const trackingToggleInput = document.getElementById("tracking-toggle-input");
+  const searchTrigger = document.getElementById("search-trigger");
+  const searchTriggerKbd = document.getElementById("search-trigger-kbd");
+  const searchOverlay = document.getElementById("search-overlay");
+  const searchInput = document.getElementById("search-input");
+  const searchClose = document.getElementById("search-close");
+  const searchResultsEl = document.getElementById("search-results");
 
   /** @type {{modules: Array}} */
   let manifest = null;
@@ -20,6 +26,11 @@
   let flatSections = [];
   /** Map id -> section entry */
   let sectionsById = new Map();
+  /** Lazily-built full-text search index: [{id, title, moduleTitle, isBranch, text, textLower}] */
+  let searchIndex = null;
+  let searchIndexPromise = null;
+  let searchResults = [];
+  let searchSelectedIndex = -1;
 
   function loadProgress() {
     try {
@@ -442,6 +453,211 @@
     div.textContent = s;
     return div.innerHTML;
   }
+
+  /**
+   * Search is a lazily-built, client-side full-text index — there's no
+   * server and no build step, so the first time search opens, every
+   * section's raw markdown is fetched once, stripped to plain text, and
+   * kept in memory for the rest of the session. Small enough corpus that
+   * this costs nothing noticeable, and it never goes stale since it's
+   * built from the same files the site already serves.
+   */
+  function stripMarkdownToText(md) {
+    return md
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .replace(/[#>*_`~|]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function ensureSearchIndex() {
+    if (searchIndexPromise) return searchIndexPromise;
+    if (!flatSections.length) return Promise.resolve([]);
+    searchIndexPromise = Promise.all(
+      flatSections.map((sec) =>
+        fetch(CONTENT_ROOT + sec.file, { cache: "no-cache" })
+          .then((res) => (res.ok ? res.text() : ""))
+          .catch(() => "")
+          .then((raw) => {
+            const text = stripMarkdownToText(raw);
+            return {
+              id: sec.id,
+              title: sec.title,
+              moduleTitle: sec.moduleTitle,
+              isBranch: sec.isBranch,
+              text,
+              textLower: text.toLowerCase(),
+            };
+          })
+      )
+    ).then((entries) => {
+      searchIndex = entries;
+      return entries;
+    });
+    return searchIndexPromise;
+  }
+
+  function scoreEntry(entry, queryLower, queryWords) {
+    const titleLower = entry.title.toLowerCase();
+    let score = 0;
+    if (titleLower === queryLower) score += 100;
+    else if (titleLower.startsWith(queryLower)) score += 60;
+    else if (titleLower.includes(queryLower)) score += 40;
+    queryWords.forEach((w) => {
+      if (titleLower.includes(w)) score += 8;
+    });
+    if (entry.textLower.includes(queryLower)) score += 12;
+    queryWords.forEach((w) => {
+      if (entry.textLower.includes(w)) score += 3;
+    });
+    return score;
+  }
+
+  function extractSnippet(entry, queryLower, queryWords) {
+    let idx = entry.textLower.indexOf(queryLower);
+    if (idx === -1) {
+      for (const w of queryWords) {
+        idx = entry.textLower.indexOf(w);
+        if (idx !== -1) break;
+      }
+    }
+    if (idx === -1) {
+      return entry.text.slice(0, 140) + (entry.text.length > 140 ? "…" : "");
+    }
+    const start = Math.max(0, idx - 60);
+    const end = Math.min(entry.text.length, idx + 90);
+    let snippet = entry.text.slice(start, end);
+    if (start > 0) snippet = "…" + snippet;
+    if (end < entry.text.length) snippet = snippet + "…";
+    return snippet;
+  }
+
+  function runSearch(query) {
+    const q = query.trim();
+    if (!q || !searchIndex) return [];
+    const queryLower = q.toLowerCase();
+    const queryWords = queryLower.split(/\s+/).filter((w) => w.length >= 2);
+    return searchIndex
+      .map((entry) => ({ entry, score: scoreEntry(entry, queryLower, queryWords) }))
+      .filter((r) => r.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8)
+      .map((r) => ({
+        id: r.entry.id,
+        title: r.entry.title,
+        moduleTitle: r.entry.moduleTitle,
+        isBranch: r.entry.isBranch,
+        snippet: extractSnippet(r.entry, queryLower, queryWords),
+      }));
+  }
+
+  function renderSearchResults(results, query) {
+    searchResults = results;
+    searchSelectedIndex = results.length ? 0 : -1;
+
+    if (!query.trim()) {
+      searchResultsEl.innerHTML = '<div class="search-hint">Type to search across every page in the course.</div>';
+      return;
+    }
+    if (!searchIndex) {
+      searchResultsEl.innerHTML = '<div class="search-hint">Loading search index…</div>';
+      return;
+    }
+    if (!results.length) {
+      searchResultsEl.innerHTML = `<div class="search-hint">No results for "${escapeHtml(query)}".</div>`;
+      return;
+    }
+
+    searchResultsEl.innerHTML = results
+      .map(
+        (r, i) => `
+        <button type="button" class="search-result${i === 0 ? " is-selected" : ""}" data-index="${i}" role="option">
+          <div class="search-result-title">${escapeHtml(r.title)}<span class="search-result-module">${escapeHtml(r.moduleTitle)}${r.isBranch ? " · Deep Dive" : ""}</span></div>
+          <div class="search-result-snippet">${escapeHtml(r.snippet)}</div>
+        </button>`
+      )
+      .join("");
+  }
+
+  function moveSearchSelection(delta) {
+    if (!searchResults.length) return;
+    searchSelectedIndex = (searchSelectedIndex + delta + searchResults.length) % searchResults.length;
+    searchResultsEl.querySelectorAll(".search-result").forEach((el, i) => {
+      el.classList.toggle("is-selected", i === searchSelectedIndex);
+    });
+    const active = searchResultsEl.querySelector(".search-result.is-selected");
+    if (active) active.scrollIntoView({ block: "nearest" });
+  }
+
+  function navigateToSearchResult(result) {
+    closeSearch();
+    window.location.hash = `#/${result.id}`;
+  }
+
+  function openSearch() {
+    searchOverlay.classList.remove("is-hidden");
+    document.body.classList.add("search-open");
+    searchInput.value = "";
+    searchResults = [];
+    searchSelectedIndex = -1;
+    renderSearchResults([], "");
+    searchInput.focus();
+    ensureSearchIndex().then(() => {
+      renderSearchResults(runSearch(searchInput.value), searchInput.value);
+    });
+  }
+
+  function closeSearch() {
+    searchOverlay.classList.add("is-hidden");
+    document.body.classList.remove("search-open");
+  }
+
+  function isSearchOpen() {
+    return !searchOverlay.classList.contains("is-hidden");
+  }
+
+  searchTriggerKbd.textContent = /Mac|iPhone|iPod|iPad/.test(navigator.platform || navigator.userAgent) ? "⌘K" : "Ctrl K";
+
+  searchTrigger.addEventListener("click", openSearch);
+  searchClose.addEventListener("click", closeSearch);
+  searchOverlay.addEventListener("click", (e) => {
+    if (e.target === searchOverlay) closeSearch();
+  });
+  searchInput.addEventListener("input", () => {
+    renderSearchResults(runSearch(searchInput.value), searchInput.value);
+  });
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      moveSearchSelection(1);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      moveSearchSelection(-1);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (searchSelectedIndex >= 0 && searchResults[searchSelectedIndex]) {
+        navigateToSearchResult(searchResults[searchSelectedIndex]);
+      }
+    }
+  });
+  searchResultsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".search-result");
+    if (!btn) return;
+    const idx = Number(btn.getAttribute("data-index"));
+    if (searchResults[idx]) navigateToSearchResult(searchResults[idx]);
+  });
+  document.addEventListener("keydown", (e) => {
+    const isMod = e.metaKey || e.ctrlKey;
+    if (isMod && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      isSearchOpen() ? closeSearch() : openSearch();
+    } else if (e.key === "Escape" && isSearchOpen()) {
+      closeSearch();
+    }
+  });
 
   function handleRoute() {
     const hash = window.location.hash.replace(/^#\/?/, "");
