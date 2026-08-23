@@ -222,8 +222,84 @@
       ]
     },
     {
+      "id": "llms-applied-ai",
+      "title": "4. LLMs & Applied AI",
+      "sections": [
+        {
+          "id": "llm-vocabulary",
+          "title": "LLM Vocabulary",
+          "file": "llms-applied-ai/llm-vocabulary.md"
+        },
+        {
+          "id": "tokenization",
+          "title": "Tokenization",
+          "file": "llms-applied-ai/tokenization.md"
+        },
+        {
+          "id": "training-lifecycle",
+          "title": "Training Lifecycle",
+          "file": "llms-applied-ai/training-lifecycle.md"
+        },
+        {
+          "id": "datasets-data-pipelines",
+          "title": "Datasets & Data Pipelines",
+          "file": "llms-applied-ai/datasets-data-pipelines.md"
+        },
+        {
+          "id": "fine-tuning",
+          "title": "Fine-Tuning in Practice",
+          "file": "llms-applied-ai/fine-tuning.md"
+        },
+        {
+          "id": "embeddings-vector-search",
+          "title": "Embeddings & Vector Search",
+          "file": "llms-applied-ai/embeddings-vector-search.md"
+        },
+        {
+          "id": "rag",
+          "title": "Retrieval-Augmented Generation (RAG)",
+          "file": "llms-applied-ai/rag.md"
+        },
+        {
+          "id": "prompting-context-engineering",
+          "title": "Prompting & Context Engineering",
+          "file": "llms-applied-ai/prompting-context-engineering.md"
+        },
+        {
+          "id": "model-serving-inference",
+          "title": "Model Serving & Inference Infrastructure",
+          "file": "llms-applied-ai/model-serving-inference.md"
+        },
+        {
+          "id": "evaluation-monitoring",
+          "title": "Evaluation & Monitoring",
+          "file": "llms-applied-ai/evaluation-monitoring.md"
+        },
+        {
+          "id": "tool-use-function-calling",
+          "title": "Tool Use & Function Calling",
+          "file": "llms-applied-ai/tool-use-function-calling.md"
+        },
+        {
+          "id": "agents",
+          "title": "Agents",
+          "file": "llms-applied-ai/agents.md"
+        },
+        {
+          "id": "mcp",
+          "title": "Model Context Protocol (MCP)",
+          "file": "llms-applied-ai/mcp.md"
+        },
+        {
+          "id": "orchestration-harnesses",
+          "title": "Orchestration & Agent Harnesses",
+          "file": "llms-applied-ai/orchestration-harnesses.md"
+        }
+      ]
+    },
+    {
       "id": "case-studies",
-      "title": "4. Case Studies",
+      "title": "5. Case Studies",
       "sections": [
         {
           "id": "url-shortener",
