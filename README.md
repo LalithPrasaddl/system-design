@@ -101,6 +101,8 @@ Every case study under `content/case-studies/` follows the same two-level tab st
 8. **Security & Abuse Prevention** — the attack surface specific to this system and how the design accounts for it.
 9. **Monitoring & Operations** — what you'd alert on, and what a runbook looks like when a component fails.
 
+AI case studies live under `content/ai-case-studies/` and use the same structure with one addition: an **Evaluation** tab between Data Model and Architecture. It sits there because an AI system's eval strategy drives its architecture rather than following it — it occupies the slot "correctness" holds in a classic case study, and the stages that follow are justified by the numbers it defines. Cost per request is also folded into Scale Estimates as a first-class figure, since it is what decides model choice, caching, and how much work the expensive stage is allowed to do.
+
 Each top-level section is marked with an HTML comment, parsed client-side the same way stage markers are:
 
 ```
@@ -134,7 +136,7 @@ A diagram marked `data-flow-player` becomes an interactive, narrated walkthrough
 </div>
 ```
 
-Per step: `el` is the connector's `id`; `payload` is the labelled pill that rides along it; `ms` adds to the running latency readout; `text` is the caption; `set` writes into a state panel (`panelId.rowKey`). `altEl` (with optional `altText`, `altMs`) names a fallback connector to take when `el`'s component has been failed — that is how a load balancer routes around a dead app server instead of the flow simply stopping. A flow's `nodes` lists component ids to keep lit; everything else on the diagram dims while that flow is selected.
+Per step: `el` is the connector's `id`; `payload` is the labelled pill that rides along it; `ms` adds to the running latency readout; `text` is the caption; `set` writes into a state panel (`panelId.rowKey`). `altEl` (with optional `altText`, `altMs`, `altSet`) names a fallback connector to take when `el`'s component has been failed — that is how a load balancer routes around a dead app server instead of the flow simply stopping. A flow's `nodes` lists component ids to keep lit; everything else on the diagram dims while that flow is selected.
 
 Connectors must carry `data-depends-on` for failure handling to work, and both `<line>` and `<path>` elements are supported. Latency numbers are server-side only by convention — client network round trips dominate every path and would bury the differences the diagram exists to show.
 

@@ -238,6 +238,11 @@
               "id": "url-shortener",
               "title": "URL Shortener",
               "file": "case-studies/url-shortener.md"
+            },
+            {
+              "id": "rate-limiter",
+              "title": "Rate Limiter as a Service",
+              "file": "case-studies/rate-limiter.md"
             }
           ]
         }
@@ -332,6 +337,17 @@
               "id": "orchestration-harnesses",
               "title": "Orchestration & Agent Harnesses",
               "file": "llms-applied-ai/orchestration-harnesses.md"
+            }
+          ]
+        },
+        {
+          "id": "ai-case-studies",
+          "title": "Case Studies",
+          "sections": [
+            {
+              "id": "semantic-search",
+              "title": "Semantic Search over a Document Corpus",
+              "file": "ai-case-studies/semantic-search.md"
             }
           ]
         }

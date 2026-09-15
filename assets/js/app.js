@@ -903,15 +903,16 @@
     });
   }
 
-  function applyStateWrites(player, step) {
-    if (!step.set) return;
-    Object.keys(step.set).forEach((key) => {
+  function applyStateWrites(player, step, rerouted) {
+    const writes = rerouted && step.altSet ? step.altSet : step.set;
+    if (!writes) return;
+    Object.keys(writes).forEach((key) => {
       const dot = key.indexOf(".");
       const box = player.ui.panels[key.slice(0, dot)];
       if (!box) return;
       const cell = box.querySelector(`tr[data-key="${key.slice(dot + 1)}"] td`);
       if (!cell) return;
-      cell.textContent = step.set[key];
+      cell.textContent = writes[key];
       cell.classList.add("is-changed");
     });
   }
@@ -974,7 +975,7 @@
         break;
       }
       if (r.rerouted) rerouted.add(i);
-      applyStateWrites(player, step);
+      applyStateWrites(player, step, r.rerouted);
       latency += stepCost(step, r.rerouted);
       r.el.classList.add(i === target ? "is-step-active" : "is-step-done");
       if (r.rerouted) r.el.classList.add("is-step-reroute");
