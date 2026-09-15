@@ -264,6 +264,11 @@
               "file": "llms-applied-ai/tokenization.md"
             },
             {
+              "id": "transformer-architecture",
+              "title": "How a Transformer Actually Works",
+              "file": "llms-applied-ai/transformer-architecture.md"
+            },
+            {
               "id": "training-lifecycle",
               "title": "Training Lifecycle",
               "file": "llms-applied-ai/training-lifecycle.md"
@@ -317,6 +322,11 @@
               "id": "mcp",
               "title": "Model Context Protocol (MCP)",
               "file": "llms-applied-ai/mcp.md"
+            },
+            {
+              "id": "prompt-injection",
+              "title": "Prompt Injection & the Agent Attack Surface",
+              "file": "llms-applied-ai/prompt-injection.md"
             },
             {
               "id": "orchestration-harnesses",

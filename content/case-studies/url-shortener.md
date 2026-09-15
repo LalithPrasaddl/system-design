@@ -210,9 +210,9 @@ Bolting a `click_count` column onto the `urls` row and incrementing it on every 
 
 `short_code` is the primary key and the only index the core path needs. `long_url` is intentionally not indexed or deduplicated — two different users shortening the same long URL is expected to produce two different short codes, since they may set different expiration or ownership on each.
 
-<!-- tab:architecture:Architecture -->
+<!-- tab:architecture:Architecture:default -->
 
-This case study builds the system up in four stages, from the smallest version that works to one that survives real failures at real scale. Use the sub-tabs below to move between stages. In each stage's diagram, the components with a pointer cursor are clickable — click one to see exactly what breaks (and what doesn't) if it fails.
+This case study builds the system up in four stages, from the smallest version that works to one that survives real failures at real scale. Use the sub-tabs below to move between stages, and the flow chips inside each stage to follow one request at a time. Components with a pointer cursor are clickable — click one to see exactly what breaks (and what doesn't) if it fails, then replay a flow to watch it happen.
 
 <!-- stage:1:1. Minimal System -->
 
@@ -220,8 +220,8 @@ This case study builds the system up in four stages, from the smallest version t
 
 One app server, one database. Every write (generate a code, store the mapping) and every read (look up a code, redirect) goes through the same two hops.
 
-<div class="diagram-wrap">
-<svg viewBox="0 0 600 200" width="600" height="200" role="img" aria-label="A client talking to a single app server, which talks to a single database">
+<div class="diagram-wrap" data-flow-player>
+<svg viewBox="0 0 600 215" width="600" height="215" role="img" aria-label="A client talking to a single app server, which talks to a single database">
   <rect x="20" y="82" width="100" height="36" rx="6" class="d-actor-box" data-role="client"></rect>
   <text x="70" y="104" text-anchor="middle" class="d-actor-label">Client</text>
   <g data-fail-toggle="app1">
@@ -232,12 +232,11 @@ One app server, one database. Every write (generate a code, store the mapping) a
     <rect x="480" y="82" width="100" height="36" rx="6" class="d-actor-box" data-role="datastore"></rect>
     <text x="530" y="104" text-anchor="middle" class="d-actor-label">Database</text>
   </g>
-  <line x1="120" y1="93" x2="246" y2="93" class="d-msg d-request" data-depends-on="app1" marker-end="url(#arrowS1)"></line>
-  <text x="185" y="86" text-anchor="middle" class="d-label-muted" font-size="11">shorten / redirect</text>
-  <line x1="246" y1="110" x2="120" y2="110" class="d-msg d-response" data-depends-on="app1" marker-end="url(#arrowS1r)"></line>
-  <line x1="370" y1="93" x2="476" y2="93" class="d-msg d-request" data-depends-on="app1 db1" marker-end="url(#arrowS1)"></line>
-  <text x="423" y="86" text-anchor="middle" class="d-label-muted" font-size="11">read / write mapping</text>
-  <line x1="476" y1="110" x2="370" y2="110" class="d-msg d-response" data-depends-on="app1 db1" marker-end="url(#arrowS1r)"></line>
+  <line id="s1-client-app" x1="122" y1="93" x2="246" y2="93" class="d-msg d-request" data-depends-on="app1" marker-end="url(#arrowS1)"></line>
+  <line id="s1-app-client" x1="246" y1="110" x2="122" y2="110" class="d-msg d-response" data-depends-on="app1" marker-end="url(#arrowS1r)"></line>
+  <line id="s1-app-db" x1="372" y1="93" x2="476" y2="93" class="d-msg d-request" data-depends-on="app1 db1" marker-end="url(#arrowS1)"></line>
+  <line id="s1-db-app" x1="476" y1="110" x2="372" y2="110" class="d-msg d-response" data-depends-on="app1 db1" marker-end="url(#arrowS1r)"></line>
+  <text x="300" y="198" text-anchor="middle" class="d-label-muted" font-size="10">pick a flow above to follow one journey through this design</text>
   <defs>
     <marker id="arrowS1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" class="d-arrow-request"></path>
@@ -247,7 +246,38 @@ One app server, one database. Every write (generate a code, store the mapping) a
     </marker>
   </defs>
 </svg>
-<div class="diagram-caption">Nothing sits between the client and the app server, or between the app server and the database. Every request pays the full cost of both hops.</div>
+<script type="application/json" class="flow-spec">
+{
+"state": [
+{"id": "db", "title": "urls table", "rows": [["aX9dQ2z", "(no row yet)"]]}
+],
+"flows": [
+{
+"id": "create",
+"label": "Create a link — POST /links",
+"nodes": ["app1", "db1"],
+"steps": [
+{"el": "s1-client-app", "payload": "POST /links", "text": "Client sends the long URL it wants shortened."},
+{"el": "s1-app-db", "payload": "INSERT aX9dQ2z", "ms": 12, "set": {"db.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "App server generates a short code and writes the mapping."},
+{"el": "s1-db-app", "payload": "ok", "text": "Database confirms the write is durable."},
+{"el": "s1-app-client", "payload": "201 aX9dQ2z", "text": "Client gets its short link back."}
+]
+},
+{
+"id": "follow",
+"label": "Follow a link — GET /{code}",
+"nodes": ["app1", "db1"],
+"steps": [
+{"el": "s1-client-app", "payload": "GET /aX9dQ2z", "set": {"db.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "Someone clicks the short link."},
+{"el": "s1-app-db", "payload": "SELECT aX9dQ2z", "ms": 9, "text": "Every single read goes to the database. There is nothing in front of it to absorb any of this."},
+{"el": "s1-db-app", "payload": "long_url", "text": "Database returns the long URL."},
+{"el": "s1-app-client", "payload": "301 redirect", "text": "Client is redirected — after nine milliseconds of database work that will be repeated on every single click of this link, forever."}
+]
+}
+]
+}
+</script>
+<div class="diagram-caption">Nothing sits between the client and the app server, or between the app server and the database. Follow the read flow and watch where the time goes — that number is what Stage 2 exists to remove.</div>
 </div>
 
 <div class="fail-hint">Click the app server or the database to see what happens if it fails.</div>
@@ -269,8 +299,10 @@ This works, correctly, for as long as one machine can hold the data and keep up 
 
 Reads (someone clicking a short link) vastly outnumber writes (someone creating one) in almost every real deployment, so the read path is the first thing worth speeding up. A cache in front of the database (see [Caching](#/systems/caching)) lets most reads skip the database entirely — this is the cache-aside pattern: check the cache first, and only fall through to the database on a miss.
 
-<div class="diagram-wrap">
-<svg viewBox="0 0 600 240" width="600" height="240" role="img" aria-label="An app server checking a cache first, falling through to the database on a miss, with writes going straight to the database">
+The three journeys below share the same components but take very different paths through them. Follow each one to see where the time actually goes.
+
+<div class="diagram-wrap" data-flow-player>
+<svg viewBox="0 0 600 250" width="600" height="250" role="img" aria-label="An app server checking a cache first and falling through to the database on a miss, with separate connectors for each direction">
   <rect x="10" y="100" width="90" height="36" rx="6" class="d-actor-box" data-role="client"></rect>
   <text x="55" y="122" text-anchor="middle" class="d-actor-label">Client</text>
   <g data-fail-toggle="app2">
@@ -285,17 +317,13 @@ Reads (someone clicking a short link) vastly outnumber writes (someone creating 
     <rect x="380" y="164" width="100" height="36" rx="6" class="d-actor-box" data-role="datastore"></rect>
     <text x="430" y="186" text-anchor="middle" class="d-actor-label">Database</text>
   </g>
-  <line x1="100" y1="111" x2="166" y2="111" class="d-msg d-request" data-depends-on="app2" marker-end="url(#arrowS2)"></line>
-  <line x1="166" y1="126" x2="100" y2="126" class="d-msg d-response" data-depends-on="app2" marker-end="url(#arrowS2r)"></line>
-  <line x1="280" y1="103" x2="376" y2="66" class="d-msg d-request" data-depends-on="app2 cache2" marker-end="url(#arrowS2)"></line>
-  <text x="345" y="75" text-anchor="middle" class="d-label-muted" font-size="10">1. check cache</text>
-  <line x1="376" y1="80" x2="280" y2="117" class="d-msg d-response" data-depends-on="cache2" marker-end="url(#arrowS2r)"></line>
-  <text x="345" y="105" text-anchor="middle" class="d-label-muted" font-size="10">hit → return URL</text>
-  <line x1="430" y1="76" x2="430" y2="160" class="d-lifeline" data-depends-on="db2"></line>
-  <text x="500" y="120" text-anchor="middle" class="d-label-muted" font-size="10">on miss: read DB,</text>
-  <text x="500" y="133" text-anchor="middle" class="d-label-muted" font-size="10">then populate cache</text>
-  <line x1="280" y1="128" x2="376" y2="172" class="d-msg d-request" data-depends-on="app2 db2" marker-end="url(#arrowS2)"></line>
-  <text x="330" y="160" text-anchor="middle" class="d-label-muted" font-size="10">writes go straight to DB</text>
+  <line id="s2-client-app" x1="102" y1="110" x2="166" y2="110" class="d-msg d-request" data-depends-on="app2" marker-end="url(#arrowS2)"></line>
+  <line id="s2-app-client" x1="166" y1="126" x2="102" y2="126" class="d-msg d-response" data-depends-on="app2" marker-end="url(#arrowS2r)"></line>
+  <line id="s2-app-cache" x1="282" y1="104" x2="378" y2="60" class="d-msg d-request" data-depends-on="app2 cache2" marker-end="url(#arrowS2)"></line>
+  <line id="s2-cache-app" x1="378" y1="72" x2="282" y2="112" class="d-msg d-response" data-depends-on="cache2" marker-end="url(#arrowS2r)"></line>
+  <line id="s2-app-db" x1="282" y1="124" x2="378" y2="168" class="d-msg d-request" data-depends-on="app2 db2" marker-end="url(#arrowS2)"></line>
+  <line id="s2-db-app" x1="378" y1="180" x2="282" y2="132" class="d-msg d-response" data-depends-on="db2" marker-end="url(#arrowS2r)"></line>
+  <text x="300" y="232" text-anchor="middle" class="d-label-muted" font-size="10">pick a flow above to follow one journey through this design</text>
   <defs>
     <marker id="arrowS2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" class="d-arrow-request"></path>
@@ -305,7 +333,53 @@ Reads (someone clicking a short link) vastly outnumber writes (someone creating 
     </marker>
   </defs>
 </svg>
-<div class="diagram-caption">Reads check the cache first and only touch the database on a miss. Writes always go straight to the database — the cache is never the only copy of anything.</div>
+<script type="application/json" class="flow-spec">
+{
+"state": [
+{"id": "cache", "title": "Cache memory", "rows": [["aX9dQ2z", "(empty)"]]},
+{"id": "db", "title": "urls table", "rows": [["aX9dQ2z", "(no row yet)"]]}
+],
+"flows": [
+{
+"id": "create",
+"label": "Create a link — POST /links",
+"nodes": ["app2", "db2"],
+"steps": [
+{"el": "s2-client-app", "payload": "POST /links", "text": "Client sends the long URL it wants shortened."},
+{"el": "s2-app-db", "payload": "INSERT aX9dQ2z", "ms": 12, "set": {"db.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "App server generates a short code and writes the row. Writes always go straight to the database."},
+{"el": "s2-db-app", "payload": "ok", "text": "Database confirms the write is durable."},
+{"el": "s2-app-client", "payload": "201 aX9dQ2z", "text": "Client gets its short link back. Note the cache was never touched — a write does not populate it."}
+]
+},
+{
+"id": "read-miss",
+"label": "Follow a link — cache miss",
+"nodes": ["app2", "cache2", "db2"],
+"steps": [
+{"el": "s2-client-app", "payload": "GET /aX9dQ2z", "set": {"db.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "Someone clicks the short link for the first time."},
+{"el": "s2-app-cache", "payload": "GET aX9dQ2z", "ms": 1, "text": "App server checks the cache before anything else — this is the cache-aside pattern."},
+{"el": "s2-cache-app", "payload": "miss", "text": "Miss. The cache has never seen this code, because the write never put it there."},
+{"el": "s2-app-db", "payload": "SELECT aX9dQ2z", "ms": 9, "text": "Fall through to the database, which is the slow part of this path."},
+{"el": "s2-db-app", "payload": "long_url", "text": "Database returns the long URL."},
+{"el": "s2-app-cache", "payload": "SET aX9dQ2z", "ms": 1, "set": {"cache.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "App server populates the cache so the next reader does not pay this cost."},
+{"el": "s2-app-client", "payload": "301 redirect", "text": "Client is redirected. This is the expensive path — every code pays it exactly once."}
+]
+},
+{
+"id": "read-hit",
+"label": "Follow a link — cache hit",
+"nodes": ["app2", "cache2"],
+"steps": [
+{"el": "s2-client-app", "payload": "GET /aX9dQ2z", "set": {"cache.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug", "db.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "Someone clicks the same short link again. The cache is warm from the previous read."},
+{"el": "s2-app-cache", "payload": "GET aX9dQ2z", "ms": 1, "text": "App server checks the cache first, exactly as before."},
+{"el": "s2-cache-app", "payload": "hit", "text": "Hit. The long URL comes straight out of memory."},
+{"el": "s2-app-client", "payload": "301 redirect", "text": "Redirect sent without the database being touched at all."}
+]
+}
+]
+}
+</script>
+<div class="diagram-caption">Three journeys through the same four boxes. Elapsed time counts server-side work only — the client's own network round trip dominates every path and would hide the difference. Try failing the cache, then replaying a read.</div>
 </div>
 
 <div class="fail-hint">Click the app server, cache, or database to see what happens if it fails.</div>
@@ -330,43 +404,45 @@ Two single points of failure are still left: the one app server, and the one dat
 
 A load balancer in front of several stateless app servers ([Load Balancing](#/systems/load-balancing), [Scaling Fundamentals](#/systems/scaling-fundamentals)) fixes the app-server half — the app server holds no per-client state, so any instance can handle any request, and the load balancer stops routing to one that stops responding. Read replicas ([Replication](#/systems/replication)) fix the read half of the database problem: the cache absorbs the hottest keys, and replicas absorb the reads that still miss.
 
-<div class="diagram-wrap">
-<svg viewBox="0 0 660 260" width="660" height="260" role="img" aria-label="A load balancer fanning out to three app servers, which share a cache and a replicated database">
-  <rect x="10" y="112" width="80" height="34" rx="6" class="d-actor-box" data-role="client"></rect>
-  <text x="50" y="134" text-anchor="middle" class="d-actor-label" font-size="12">Client</text>
-  <rect x="130" y="112" width="64" height="34" rx="6" class="d-actor-box" data-role="routing"></rect>
-  <text x="162" y="134" text-anchor="middle" class="d-actor-label" font-size="12">LB</text>
-  <rect x="240" y="40" width="110" height="30" rx="5" class="d-actor-box" data-role="compute"></rect>
-  <text x="295" y="60" text-anchor="middle" class="d-actor-label" font-size="11">App Server A</text>
+<div class="diagram-wrap" data-flow-player>
+<svg viewBox="0 0 660 300" width="660" height="300" role="img" aria-label="A load balancer fanning out to three app servers, which share a cache and a replicated database">
+  <rect x="10" y="130" width="80" height="34" rx="6" class="d-actor-box" data-role="client"></rect>
+  <text x="50" y="152" text-anchor="middle" class="d-actor-label" font-size="12">Client</text>
+  <rect x="130" y="130" width="64" height="34" rx="6" class="d-actor-box" data-role="routing"></rect>
+  <text x="162" y="152" text-anchor="middle" class="d-actor-label" font-size="12">LB</text>
+  <rect x="240" y="55" width="110" height="30" rx="5" class="d-actor-box" data-role="compute"></rect>
+  <text x="295" y="75" text-anchor="middle" class="d-actor-label" font-size="11">App Server A</text>
   <g data-fail-toggle="app3">
-    <rect x="240" y="90" width="110" height="30" rx="5" class="d-actor-box" data-role="compute"></rect>
-    <text x="295" y="110" text-anchor="middle" class="d-actor-label" font-size="11">App Server B</text>
+    <rect x="240" y="125" width="110" height="40" rx="5" class="d-actor-box" data-role="compute"></rect>
+    <text x="295" y="150" text-anchor="middle" class="d-actor-label" font-size="11">App Server B</text>
   </g>
-  <rect x="240" y="140" width="110" height="30" rx="5" class="d-actor-box" data-role="compute"></rect>
-  <text x="295" y="160" text-anchor="middle" class="d-actor-label" font-size="11">App Server C</text>
-  <rect x="430" y="60" width="90" height="32" rx="6" class="d-actor-box" data-role="cache"></rect>
-  <text x="475" y="80" text-anchor="middle" class="d-actor-label" font-size="11">Cache</text>
+  <rect x="240" y="200" width="110" height="30" rx="5" class="d-actor-box" data-role="compute"></rect>
+  <text x="295" y="220" text-anchor="middle" class="d-actor-label" font-size="11">App Server C</text>
+  <rect x="430" y="40" width="90" height="32" rx="6" class="d-actor-box" data-role="cache"></rect>
+  <text x="475" y="60" text-anchor="middle" class="d-actor-label" font-size="11">Cache</text>
   <g data-fail-toggle="primary3">
-    <rect x="430" y="150" width="100" height="32" rx="6" class="d-actor-box" data-role="datastore"></rect>
-    <text x="480" y="170" text-anchor="middle" class="d-actor-label" font-size="11">Primary DB</text>
+    <rect x="430" y="130" width="100" height="32" rx="6" class="d-actor-box" data-role="datastore"></rect>
+    <text x="480" y="150" text-anchor="middle" class="d-actor-label" font-size="11">Primary DB</text>
   </g>
   <g data-fail-toggle="replica3">
-    <rect x="430" y="210" width="100" height="32" rx="6" class="d-actor-box" data-role="datastore"></rect>
-    <text x="480" y="230" text-anchor="middle" class="d-actor-label" font-size="11">Replica DB</text>
+    <rect x="430" y="220" width="100" height="32" rx="6" class="d-actor-box" data-role="datastore"></rect>
+    <text x="480" y="240" text-anchor="middle" class="d-actor-label" font-size="11">Replica DB</text>
   </g>
-  <line x1="90" y1="129" x2="126" y2="129" class="d-msg d-request" marker-end="url(#arrowS3)"></line>
-  <line x1="194" y1="138" x2="236" y2="58" class="d-msg d-request" marker-end="url(#arrowS3)"></line>
-  <line x1="194" y1="142" x2="236" y2="108" class="d-msg d-request" data-depends-on="app3" marker-end="url(#arrowS3)"></line>
-  <line x1="194" y1="146" x2="236" y2="158" class="d-msg d-request" marker-end="url(#arrowS3)"></line>
-  <line x1="350" y1="100" x2="426" y2="80" class="d-msg d-request" marker-end="url(#arrowS3)"></line>
-  <text x="390" y="80" text-anchor="middle" class="d-label-muted" font-size="10">check cache</text>
-  <line x1="475" y1="94" x2="475" y2="146" class="d-lifeline" data-depends-on="primary3 replica3"></line>
-  <text x="558" y="118" text-anchor="middle" class="d-label-muted" font-size="10">reads,</text>
-  <text x="558" y="131" text-anchor="middle" class="d-label-muted" font-size="10">on miss</text>
-  <line x1="350" y1="110" x2="426" y2="163" class="d-msg d-request" data-depends-on="app3 primary3" marker-end="url(#arrowS3)"></line>
-  <text x="390" y="145" text-anchor="middle" class="d-label-muted" font-size="10">writes</text>
-  <line x1="480" y1="182" x2="480" y2="206" class="d-msg d-response" data-depends-on="primary3" marker-end="url(#arrowS3r)"></line>
-  <text x="558" y="197" text-anchor="middle" class="d-label-muted" font-size="10">replicate</text>
+  <line id="s3-client-lb" x1="92" y1="142" x2="126" y2="142" class="d-msg d-request" marker-end="url(#arrowS3)"></line>
+  <line id="s3-lb-client" x1="126" y1="154" x2="92" y2="154" class="d-msg d-response" marker-end="url(#arrowS3r)"></line>
+  <line id="s3-lb-appA" x1="196" y1="136" x2="236" y2="68" class="d-msg d-request" marker-end="url(#arrowS3)"></line>
+  <line id="s3-lb-appB" x1="196" y1="145" x2="236" y2="143" class="d-msg d-request" data-depends-on="app3" marker-end="url(#arrowS3)"></line>
+  <line id="s3-lb-appC" x1="196" y1="154" x2="236" y2="212" class="d-msg d-request" marker-end="url(#arrowS3)"></line>
+  <line id="s3-appa-cache" x1="352" y1="62" x2="428" y2="50" class="d-msg d-request" marker-end="url(#arrowS3)"></line>
+  <line id="s3-cache-appa" x1="428" y1="58" x2="352" y2="72" class="d-msg d-response" marker-end="url(#arrowS3r)"></line>
+  <line id="s3-app-cache" x1="352" y1="130" x2="428" y2="60" class="d-msg d-request" data-depends-on="app3" marker-end="url(#arrowS3)"></line>
+  <line id="s3-cache-app" x1="428" y1="68" x2="352" y2="138" class="d-msg d-response" data-depends-on="app3" marker-end="url(#arrowS3r)"></line>
+  <line id="s3-app-primary" x1="352" y1="144" x2="428" y2="140" class="d-msg d-request" data-depends-on="app3 primary3" marker-end="url(#arrowS3)"></line>
+  <line id="s3-primary-app" x1="428" y1="152" x2="352" y2="150" class="d-msg d-response" data-depends-on="primary3" marker-end="url(#arrowS3r)"></line>
+  <line id="s3-app-replica" x1="352" y1="156" x2="428" y2="228" class="d-msg d-request" data-depends-on="app3 replica3" marker-end="url(#arrowS3)"></line>
+  <line id="s3-replica-app" x1="428" y1="240" x2="352" y2="162" class="d-msg d-response" data-depends-on="replica3" marker-end="url(#arrowS3r)"></line>
+  <line id="s3-replicate" x1="480" y1="164" x2="480" y2="216" class="d-msg d-response" data-depends-on="primary3" marker-end="url(#arrowS3r)"></line>
+  <text x="330" y="288" text-anchor="middle" class="d-label-muted" font-size="10">pick a flow above, then try failing App Server B and replaying it</text>
   <defs>
     <marker id="arrowS3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" class="d-arrow-request"></path>
@@ -376,7 +452,58 @@ A load balancer in front of several stateless app servers ([Load Balancing](#/sy
     </marker>
   </defs>
 </svg>
-<div class="diagram-caption">Any app server can handle any request, so the load balancer just routes around a failed one. Writes still have exactly one destination — the primary — which replicates to the replica in the background.</div>
+<script type="application/json" class="flow-spec">
+{
+"state": [
+{"id": "cache", "title": "Cache", "rows": [["aX9dQ2z", "(empty)"]]},
+{"id": "primary", "title": "Primary DB", "rows": [["aX9dQ2z", "(no row yet)"]]},
+{"id": "replica", "title": "Replica DB", "rows": [["aX9dQ2z", "(no row yet)"]]}
+],
+"flows": [
+{
+"id": "read-hit",
+"label": "Follow a link — cache hit",
+"nodes": ["app3", "s3-lb-appC"],
+"steps": [
+{"el": "s3-client-lb", "payload": "GET /aX9dQ2z", "set": {"cache.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug", "primary.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug", "replica.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "Someone clicks a short link that has been read before, so the cache is warm."},
+{"el": "s3-lb-appB", "altEl": "s3-lb-appA", "payload": "GET /aX9dQ2z", "text": "The load balancer picks a healthy app server. Any of them will do — they hold no per-client state.", "altText": "Server B is down. Health checks stop seeing it, so the load balancer sends this request to server A instead. Capacity drops; nothing is down."},
+{"el": "s3-app-cache", "altEl": "s3-appa-cache", "payload": "GET aX9dQ2z", "ms": 1, "text": "Whichever server got it checks the shared cache. The cache is shared precisely so a warm key helps every server, not just the one that warmed it."},
+{"el": "s3-cache-app", "altEl": "s3-cache-appa", "payload": "hit", "text": "Hit. Neither database is touched."},
+{"el": "s3-lb-client", "payload": "301 redirect", "text": "Redirect travels back out through the load balancer."}
+]
+},
+{
+"id": "read-miss",
+"label": "Follow a link — miss, read from replica",
+"nodes": ["app3", "replica3", "s3-lb-appC"],
+"steps": [
+{"el": "s3-client-lb", "payload": "GET /aX9dQ2z", "set": {"primary.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug", "replica.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "A click for a code nobody has read recently."},
+{"el": "s3-lb-appB", "altEl": "s3-lb-appA", "payload": "GET /aX9dQ2z", "text": "The load balancer picks a healthy app server.", "altText": "Server B is down, so the load balancer routes to server A instead."},
+{"el": "s3-app-cache", "altEl": "s3-appa-cache", "payload": "GET aX9dQ2z", "ms": 1, "text": "Check the shared cache first, as always."},
+{"el": "s3-cache-app", "altEl": "s3-cache-appa", "payload": "miss", "text": "Miss."},
+{"el": "s3-app-replica", "payload": "SELECT aX9dQ2z", "ms": 9, "text": "The miss goes to a replica, not the primary. This is the whole point of read replicas — read traffic never competes with writes."},
+{"el": "s3-replica-app", "payload": "long_url", "text": "Replica returns the mapping."},
+{"el": "s3-app-cache", "altEl": "s3-appa-cache", "payload": "SET aX9dQ2z", "ms": 1, "set": {"cache.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "Populate the shared cache, which now serves every app server."},
+{"el": "s3-lb-client", "payload": "301 redirect", "text": "Redirect sent."}
+]
+},
+{
+"id": "write",
+"label": "Create a link — POST /links",
+"nodes": ["app3", "primary3", "replica3", "s3-lb-appC"],
+"steps": [
+{"el": "s3-client-lb", "payload": "POST /links", "text": "A request to create a new short link."},
+{"el": "s3-lb-appB", "altEl": "s3-lb-appA", "payload": "POST /links", "text": "The load balancer picks a healthy app server.", "altText": "Server B is down, so the load balancer routes to server A instead."},
+{"el": "s3-app-primary", "payload": "INSERT aX9dQ2z", "ms": 12, "set": {"primary.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "Writes have exactly one destination: the primary. Scaling out the app tier did nothing for this."},
+{"el": "s3-primary-app", "payload": "ok", "text": "Primary confirms the write."},
+{"el": "s3-replicate", "payload": "replicate", "ms": 30, "set": {"replica.aX9dQ2z": "example.com/2026/09/a-very-long-article-slug"}, "text": "The primary streams the change to the replica in the background. Watch the replica row: until this step lands, a read served by the replica would have missed this link entirely."},
+{"el": "s3-lb-client", "payload": "201 aX9dQ2z", "text": "Client already had its answer before replication finished — that gap is replication lag."}
+]
+}
+]
+}
+</script>
+<div class="diagram-caption">Any app server can handle any request, so the load balancer simply routes around a failed one — fail App Server B and replay a flow to watch it happen. Writes still have exactly one destination, and the replica catches up afterwards.</div>
 </div>
 
 <div class="fail-hint">Click an app server or a database to see what happens if it fails.</div>
@@ -401,8 +528,8 @@ One thing is still shared by everyone: the primary database is the only place th
 
 When the mapping table itself gets too big, or the write rate outgrows one primary, the fix is [Partitioning & Sharding](#/systems/partitioning-sharding): split the table across multiple shards, each one hashed by short code, each one still replicated exactly the way Stage 3 set up. The load balancer, app servers, and cache from the previous stages don't change — they're collapsed into one box below so the diagram can focus on what's new.
 
-<div class="diagram-wrap">
-<svg viewBox="0 0 660 260" width="660" height="260" role="img" aria-label="App tier routing through a hash function to one of three sharded, replicated databases">
+<div class="diagram-wrap" data-flow-player>
+<svg viewBox="0 0 660 275" width="660" height="275" role="img" aria-label="App tier routing through a hash function to one of three sharded, replicated databases">
   <rect x="10" y="100" width="150" height="50" rx="8" class="d-actor-box" data-role="compute"></rect>
   <text x="85" y="122" text-anchor="middle" class="d-actor-label" font-size="12">App Tier</text>
   <text x="85" y="138" text-anchor="middle" class="d-label-muted" font-size="10">(LB + servers + cache)</text>
@@ -426,17 +553,67 @@ When the mapping table itself gets too big, or the write rate outgrows one prima
   </g>
   <rect x="400" y="214" width="130" height="22" rx="4" fill="none" stroke="var(--border)"></rect>
   <text x="465" y="229" text-anchor="middle" class="d-label-muted" font-size="10">Shard 2 · Replica</text>
-  <line x1="160" y1="122" x2="206" y2="122" class="d-msg d-request" marker-end="url(#arrowS4)"></line>
-  <line x1="320" y1="115" x2="396" y2="35" class="d-msg d-request" data-depends-on="shard0" marker-end="url(#arrowS4)"></line>
-  <line x1="320" y1="125" x2="396" y2="115" class="d-msg d-request" data-depends-on="shard1" marker-end="url(#arrowS4)"></line>
-  <line x1="320" y1="135" x2="396" y2="197" class="d-msg d-request" data-depends-on="shard2" marker-end="url(#arrowS4)"></line>
+  <line id="s4-app-router" x1="162" y1="118" x2="206" y2="118" class="d-msg d-request" marker-end="url(#arrowS4)"></line>
+  <line id="s4-router-app" x1="206" y1="134" x2="162" y2="134" class="d-msg d-response" marker-end="url(#arrowS4r)"></line>
+  <line id="s4-router-shard0" x1="322" y1="112" x2="396" y2="28" class="d-msg d-request" data-depends-on="shard0" marker-end="url(#arrowS4)"></line>
+  <line id="s4-shard0-router" x1="396" y1="38" x2="322" y2="124" class="d-msg d-response" data-depends-on="shard0" marker-end="url(#arrowS4r)"></line>
+  <line id="s4-router-shard1" x1="322" y1="120" x2="396" y2="108" class="d-msg d-request" data-depends-on="shard1" marker-end="url(#arrowS4)"></line>
+  <line id="s4-shard1-router" x1="396" y1="120" x2="322" y2="132" class="d-msg d-response" data-depends-on="shard1" marker-end="url(#arrowS4r)"></line>
+  <line id="s4-router-shard2" x1="322" y1="128" x2="396" y2="190" class="d-msg d-request" data-depends-on="shard2" marker-end="url(#arrowS4)"></line>
+  <line id="s4-shard2-router" x1="396" y1="200" x2="322" y2="138" class="d-msg d-response" data-depends-on="shard2" marker-end="url(#arrowS4r)"></line>
+  <text x="330" y="263" text-anchor="middle" class="d-label-muted" font-size="10">follow each code, then fail Shard 0 and replay all three</text>
   <defs>
     <marker id="arrowS4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" class="d-arrow-request"></path>
     </marker>
+    <marker id="arrowS4r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="d-arrow-response"></path>
+    </marker>
   </defs>
 </svg>
-<div class="diagram-caption">Every short code hashes deterministically to exactly one shard. Each shard is replicated on its own, independently of the other shards — the mechanism from Stage 3, now applied per shard instead of once for the whole database.</div>
+<script type="application/json" class="flow-spec">
+{
+"state": [
+{"id": "route", "title": "Routing decision", "rows": [["hash(code) % 3", "—"]]}
+],
+"flows": [
+{
+"id": "code-b7",
+"label": "Code b7KpQ1z → Shard 0",
+"nodes": ["shard0"],
+"steps": [
+{"el": "s4-app-router", "payload": "GET b7KpQ1z", "text": "A click arrives for code b7KpQ1z."},
+{"el": "s4-router-shard0", "payload": "→ shard 0", "ms": 9, "set": {"route.hash(code) % 3": "Shard 0"}, "text": "The hash resolves to shard 0. The same code always lands on the same shard, which is what makes the lookup a single hop instead of a search."},
+{"el": "s4-shard0-router", "payload": "long_url", "text": "Shard 0 returns the mapping."},
+{"el": "s4-router-app", "payload": "301 redirect", "text": "Redirect goes back out. Shards 1 and 2 were never involved in this request."}
+]
+},
+{
+"id": "code-ax",
+"label": "Code aX9dQ2z → Shard 1",
+"nodes": ["shard1"],
+"steps": [
+{"el": "s4-app-router", "payload": "GET aX9dQ2z", "text": "A click arrives for a different code, aX9dQ2z."},
+{"el": "s4-router-shard1", "payload": "→ shard 1", "ms": 9, "set": {"route.hash(code) % 3": "Shard 1"}, "text": "This one hashes to shard 1 — a completely independent machine from the previous flow."},
+{"el": "s4-shard1-router", "payload": "long_url", "text": "Shard 1 returns the mapping."},
+{"el": "s4-router-app", "payload": "301 redirect", "text": "Redirect sent."}
+]
+},
+{
+"id": "code-qm",
+"label": "Code Qm4xT8w → Shard 2",
+"nodes": ["shard2"],
+"steps": [
+{"el": "s4-app-router", "payload": "GET Qm4xT8w", "text": "And a third code, Qm4xT8w."},
+{"el": "s4-router-shard2", "payload": "→ shard 2", "ms": 9, "set": {"route.hash(code) % 3": "Shard 2"}, "text": "Shard 2 this time. Three codes, three machines, no coordination between them."},
+{"el": "s4-shard2-router", "payload": "long_url", "text": "Shard 2 returns the mapping."},
+{"el": "s4-router-app", "payload": "301 redirect", "text": "Redirect sent."}
+]
+}
+]
+}
+</script>
+<div class="diagram-caption">Every short code hashes deterministically to exactly one shard. Fail Shard 0 and replay all three flows: one blocks, two finish untouched. That gap is the blast radius, and it is the entire reason for sharding.</div>
 </div>
 
 <div class="fail-hint">Click a shard's primary to see what happens if it fails — notice the blast radius this time.</div>

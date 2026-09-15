@@ -43,7 +43,7 @@ There's a complication specific to LLMs, though: requests don't all finish at th
 
 ## The KV cache
 
-Recomputing everything from scratch, for every single new token, would be extremely wasteful. So instead, the model caches some of its intermediate calculations from previous tokens — this is called the **KV cache** (key-value cache) — and reuses them, computing only what's actually new at each step.
+How a Transformer Actually Works introduced the **KV cache**: the keys and values for every token in the sequence so far, computed once and then reused, so each generation step only has to compute what's genuinely new. Here it matters as a capacity constraint rather than as a mechanism.
 
 This cache grows as the conversation gets longer, and it takes up a large chunk of GPU memory per request. This is a direct reason why longer context windows and more requests running at once both cost more to serve — independent of how big the model's parameter count is.
 

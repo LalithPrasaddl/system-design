@@ -95,7 +95,7 @@ Every case study under `content/case-studies/` follows the same two-level tab st
 2. **Scale Estimates** — back-of-envelope QPS, storage, and bandwidth math, worked out from stated assumptions.
 3. **API Design** — the actual endpoints, request/response shapes, and status codes.
 4. **Data Model** — schema, chosen storage type, and why.
-5. **Architecture** — the system built up in stages, from minimal to production-scale. Each stage gets its own sub-tab and clickable, click-to-fail diagrams.
+5. **Architecture** — the system built up in stages, from minimal to production-scale. Each stage gets its own sub-tab, an interactive flow player, and clickable, click-to-fail diagrams. This is the tab that opens first (see `:default` below) — it is the most useful thing on the page, and leading with it beats making readers find it.
 6. **Deep Dives** — optional, focused explorations of one hard sub-problem (e.g., short-code generation strategies).
 7. **Bottlenecks & Trade-offs** — where this design still strains, and what you'd give up to fix it.
 8. **Security & Abuse Prevention** — the attack surface specific to this system and how the design accounts for it.
@@ -107,7 +107,36 @@ Each top-level section is marked with an HTML comment, parsed client-side the sa
 <!-- tab:requirements:Requirements -->
 ```
 
-The `id` (`requirements`) must be unique within the page; the label (`Requirements`) is what renders on the tab. Content before the first `tab:` marker (typically a one- or two-sentence framing of the problem) renders above the tab strip, outside any tab. Inside the **Architecture** tab, stages are marked exactly as documented above (`<!-- stage:1:Minimal System -->`) — this is the same mechanism nested one level deeper, so the Architecture tab shows its own stage sub-tabs.
+The `id` (`requirements`) must be unique within the page; the label (`Requirements`) is what renders on the tab. Content before the first marker (typically a one- or two-sentence framing of the problem) renders above the tab strip, outside any tab. Inside the **Architecture** tab, stages are marked exactly as documented above (`<!-- stage:1:Minimal System -->`) — the same mechanism nested one level deeper, so Architecture shows its own stage sub-tabs.
+
+A marker may end in `:default` to name the tab that opens first, regardless of where it sits in the strip:
+
+```
+<!-- tab:architecture:Architecture:default -->
+```
+
+Without one, the first tab opens. Tab order still follows the design process (requirements first), but the reader lands on the architecture, which is the part worth seeing immediately. At most one `:default` per page; if several are marked, the first wins.
+
+### Flow players
+
+A diagram marked `data-flow-player` becomes an interactive, narrated walkthrough. It carries a JSON spec naming its flows, and the player draws one step at a time along the real SVG connectors:
+
+```
+<div class="diagram-wrap" data-flow-player>
+  <svg>… <line id="s2-app-cache" data-depends-on="app2 cache2" …> …</svg>
+  <script type="application/json" class="flow-spec">
+  {"state":[{"id":"cache","title":"Cache memory","rows":[["aX9dQ2z","(empty)"]]}],
+   "flows":[{"id":"read-hit","label":"Follow a link — cache hit","nodes":["app2","cache2"],
+     "steps":[{"el":"s2-app-cache","payload":"GET aX9dQ2z","ms":1,
+               "set":{"cache.aX9dQ2z":"example.com/…"},
+               "text":"App server checks the cache first."}]}]}
+  </script>
+</div>
+```
+
+Per step: `el` is the connector's `id`; `payload` is the labelled pill that rides along it; `ms` adds to the running latency readout; `text` is the caption; `set` writes into a state panel (`panelId.rowKey`). `altEl` (with optional `altText`, `altMs`) names a fallback connector to take when `el`'s component has been failed — that is how a load balancer routes around a dead app server instead of the flow simply stopping. A flow's `nodes` lists component ids to keep lit; everything else on the diagram dims while that flow is selected.
+
+Connectors must carry `data-depends-on` for failure handling to work, and both `<line>` and `<path>` elements are supported. Latency numbers are server-side only by convention — client network round trips dominate every path and would bury the differences the diagram exists to show.
 
 ## Status
 

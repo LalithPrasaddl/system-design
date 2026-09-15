@@ -1195,6 +1195,266 @@ body:not(.tracking-on) .track-card-progress {
   margin-top: 0;
 }
 
+/* Flow player — narrated journeys over one architecture diagram */
+.flow-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+}
+
+.flow-chip {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.flow-chip:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.flow-chip.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.flow-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.flow-btn {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.flow-btn:hover {
+  border-color: var(--accent);
+}
+
+.flow-play {
+  min-width: 5.2rem;
+}
+
+.flow-latency {
+  margin-left: auto;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-latency.is-blocked {
+  color: var(--fail);
+}
+
+.flow-steps {
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  counter-reset: none;
+}
+
+.flow-steps li {
+  margin: 0;
+}
+
+.flow-step {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.4rem 0.55rem;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 6px 6px 0;
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flow-step:hover {
+  background: var(--code-bg);
+}
+
+.flow-step.is-active {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.flow-step.is-blocked {
+  border-left-color: var(--fail);
+  background: var(--fail-soft);
+  color: var(--text);
+}
+
+.flow-step-num {
+  flex-shrink: 0;
+  width: 1.15rem;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.flow-step-text {
+  flex: 1;
+}
+
+.flow-step-ms {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.flow-state {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.flow-state-panel {
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.flow-state-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.flow-state-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.flow-state-panel th,
+.flow-state-panel td {
+  padding: 0.18rem 0;
+  text-align: left;
+  font-weight: 400;
+  vertical-align: top;
+}
+
+.flow-state-panel th {
+  width: 40%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--text);
+}
+
+.flow-state-panel td {
+  color: var(--text-muted);
+  word-break: break-all;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.flow-state-panel td.is-changed {
+  color: var(--complete);
+  background: var(--accent-soft);
+}
+
+/* Diagram states driven by the player */
+.diagram-wrap .is-offpath {
+  opacity: 0.12;
+  transition: opacity 0.25s ease;
+}
+
+.diagram-wrap .d-msg.is-step-done,
+.diagram-wrap .d-lifeline.is-step-done {
+  opacity: 0.75;
+}
+
+.diagram-wrap .d-msg.is-step-active,
+.diagram-wrap .d-lifeline.is-step-active {
+  stroke-width: 3;
+  opacity: 1;
+}
+
+.diagram-wrap .d-msg.is-step-reroute,
+.diagram-wrap .d-lifeline.is-step-reroute {
+  stroke: var(--group-color-2);
+}
+
+.flow-step.is-rerouted {
+  border-left-color: var(--group-color-2);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.flow-step.is-rerouted .flow-step-num::after {
+  content: " ⤳";
+  color: var(--group-color-2);
+}
+
+.diagram-wrap .d-msg.is-step-blocked,
+.diagram-wrap .d-lifeline.is-step-blocked {
+  stroke: var(--fail);
+  stroke-width: 3;
+  opacity: 1;
+}
+
+.diagram-wrap .flow-token {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.diagram-wrap .flow-token.is-visible {
+  opacity: 1;
+}
+
+.diagram-wrap .flow-token rect {
+  fill: var(--accent);
+  stroke: var(--bg);
+  stroke-width: 1.5;
+}
+
+.diagram-wrap .flow-token.is-blocked rect {
+  fill: var(--fail);
+}
+
+.diagram-wrap .flow-token text {
+  fill: #fff;
+  font-size: 10.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diagram-wrap .is-offpath,
+  .diagram-wrap .flow-token,
+  .flow-state-panel td {
+    transition: none;
+  }
+}
+
 /* Mobile */
 @media (max-width: 860px) {
   .sidebar-toggle {
@@ -1229,6 +1489,14 @@ body:not(.tracking-on) .track-card-progress {
 
   body.hub-view .content {
     padding-top: 2rem;
+  }
+
+  .flow-step {
+    font-size: 0.8rem;
+  }
+
+  .flow-state {
+    gap: 0.5rem;
   }
 
   .hub-header h1 {
