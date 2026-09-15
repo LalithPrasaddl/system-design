@@ -46,26 +46,13 @@ The same kind of components as above, but on the client side of the request.
 - Frontend Security
 - Micro-Frontends & Multi-Team Scaling
 
-## 4. LLMs & Applied AI
-The practical mechanics behind LLM-based products — training, serving, and the agent patterns built on top.
-- LLM Vocabulary
-- Tokenization
-- Training Lifecycle
-- Datasets & Data Pipelines
-- Fine-Tuning in Practice
-- Embeddings & Vector Search
-- Retrieval-Augmented Generation (RAG)
-- Prompting & Context Engineering
-- Model Serving & Inference Infrastructure
-- Evaluation & Monitoring
-- Tool Use & Function Calling
-- Agents
-- Model Context Protocol (MCP)
-- Orchestration & Agent Harnesses
-
-## 5. Case Studies
+## 4. Case Studies
 Real systems, built up from the smallest working version to a design that holds under scale — a URL shortener, a rate limiter, a chat system, a news feed, a distributed cache, a ride-hailing dispatch system, a video-streaming platform, and more. Each one is interactive: you can see the system's components and data flow directly, and see what changes (and what breaks) as pieces are added or removed.
 
-## 6. Wrap-Up
+## 5. Wrap-Up
 - A Framework for Reasoning Under Ambiguity
 - Glossary
+
+---
+
+The mechanics behind LLM-based products — training, serving, retrieval, tools, and agents — are covered in their own track: [AI & LLMs](#/ai/llm-vocabulary).

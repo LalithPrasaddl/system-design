@@ -182,7 +182,7 @@ urls
   expires_at   TIMESTAMP    NULL
 ```
 
-Every access to this table — the redirect read, the create write, the delete — is a lookup by `short_code`. There's no join, no range scan, no secondary index needed for the core path. That fact is worth noticing: it means a relational database is not a requirement here, just a familiar default. A key-value or wide-column store (see [Databases II — NoSQL Models](#/databases-nosql)) fits the access pattern at least as well, and scales writes and reads by key more naturally at very large volume. This case study's Architecture tab builds on a relational database because the replication and sharding mechanics transfer directly to either choice — but if the requirements stayed exactly this simple, a KV store would be a defensible, maybe even preferable, starting point.
+Every access to this table — the redirect read, the create write, the delete — is a lookup by `short_code`. There's no join, no range scan, no secondary index needed for the core path. That fact is worth noticing: it means a relational database is not a requirement here, just a familiar default. A key-value or wide-column store (see [Databases II — NoSQL Models](#/systems/databases-nosql)) fits the access pattern at least as well, and scales writes and reads by key more naturally at very large volume. This case study's Architecture tab builds on a relational database because the replication and sharding mechanics transfer directly to either choice — but if the requirements stayed exactly this simple, a KV store would be a defensible, maybe even preferable, starting point.
 
 ### Which database, in practice
 
@@ -204,7 +204,7 @@ click_events
   referrer     TEXT         NULL
 ```
 
-Bolting a `click_count` column onto the `urls` row and incrementing it on every redirect would mean every read also takes a write lock on the exact row under the heaviest read load in the system — the worst possible place to add write contention. Appending to a separate, unindexed `click_events` table (or, at higher scale, a message queue — see [Message Queues & Event-Driven Architecture](#/message-queues) — with counts aggregated asynchronously) keeps the hot read path a pure read.
+Bolting a `click_count` column onto the `urls` row and incrementing it on every redirect would mean every read also takes a write lock on the exact row under the heaviest read load in the system — the worst possible place to add write contention. Appending to a separate, unindexed `click_events` table (or, at higher scale, a message queue — see [Message Queues & Event-Driven Architecture](#/systems/message-queues) — with counts aggregated asynchronously) keeps the hot read path a pure read.
 
 ### Indexing
 
@@ -267,7 +267,7 @@ This works, correctly, for as long as one machine can hold the data and keep up 
 
 ## Stage 2 — Add a Cache
 
-Reads (someone clicking a short link) vastly outnumber writes (someone creating one) in almost every real deployment, so the read path is the first thing worth speeding up. A cache in front of the database (see [Caching](#/caching)) lets most reads skip the database entirely — this is the cache-aside pattern: check the cache first, and only fall through to the database on a miss.
+Reads (someone clicking a short link) vastly outnumber writes (someone creating one) in almost every real deployment, so the read path is the first thing worth speeding up. A cache in front of the database (see [Caching](#/systems/caching)) lets most reads skip the database entirely — this is the cache-aside pattern: check the cache first, and only fall through to the database on a miss.
 
 <div class="diagram-wrap">
 <svg viewBox="0 0 600 240" width="600" height="240" role="img" aria-label="An app server checking a cache first, falling through to the database on a miss, with writes going straight to the database">
@@ -328,7 +328,7 @@ Two single points of failure are still left: the one app server, and the one dat
 
 ## Stage 3 — Scale Out
 
-A load balancer in front of several stateless app servers ([Load Balancing](#/load-balancing), [Scaling Fundamentals](#/scaling-fundamentals)) fixes the app-server half — the app server holds no per-client state, so any instance can handle any request, and the load balancer stops routing to one that stops responding. Read replicas ([Replication](#/replication)) fix the read half of the database problem: the cache absorbs the hottest keys, and replicas absorb the reads that still miss.
+A load balancer in front of several stateless app servers ([Load Balancing](#/systems/load-balancing), [Scaling Fundamentals](#/systems/scaling-fundamentals)) fixes the app-server half — the app server holds no per-client state, so any instance can handle any request, and the load balancer stops routing to one that stops responding. Read replicas ([Replication](#/systems/replication)) fix the read half of the database problem: the cache absorbs the hottest keys, and replicas absorb the reads that still miss.
 
 <div class="diagram-wrap">
 <svg viewBox="0 0 660 260" width="660" height="260" role="img" aria-label="A load balancer fanning out to three app servers, which share a cache and a replicated database">
@@ -386,7 +386,7 @@ A load balancer in front of several stateless app servers ([Load Balancing](#/lo
 <strong>If one app server fails:</strong> the load balancer's health checks stop seeing responses from it and route around it. The other instances keep serving all traffic — capacity drops slightly, but nothing is down.
 </div>
 <div class="failure-impact is-hidden" data-component="primary3">
-<strong>If the primary database fails:</strong> every write fails immediately — there's still only one place writes can go. Reads can often keep working from the cache and the replica, which is the same synchronous-vs-asynchronous replication trade-off from <a href="#/replication">Replication</a> showing up here: something has to detect the failure and promote the replica before writes work again.
+<strong>If the primary database fails:</strong> every write fails immediately — there's still only one place writes can go. Reads can often keep working from the cache and the replica, which is the same synchronous-vs-asynchronous replication trade-off from <a href="#/systems/replication">Replication</a> showing up here: something has to detect the failure and promote the replica before writes work again.
 </div>
 <div class="failure-impact is-hidden" data-component="replica3">
 <strong>If the replica fails:</strong> reads that would have gone to it are served from the cache or fall through to the primary instead. This is graceful degradation, not an outage — exactly the point of having more than one place to read from.
@@ -399,7 +399,7 @@ One thing is still shared by everyone: the primary database is the only place th
 
 ## Stage 4 — Shard the Database
 
-When the mapping table itself gets too big, or the write rate outgrows one primary, the fix is [Partitioning & Sharding](#/partitioning-sharding): split the table across multiple shards, each one hashed by short code, each one still replicated exactly the way Stage 3 set up. The load balancer, app servers, and cache from the previous stages don't change — they're collapsed into one box below so the diagram can focus on what's new.
+When the mapping table itself gets too big, or the write rate outgrows one primary, the fix is [Partitioning & Sharding](#/systems/partitioning-sharding): split the table across multiple shards, each one hashed by short code, each one still replicated exactly the way Stage 3 set up. The load balancer, app servers, and cache from the previous stages don't change — they're collapsed into one box below so the diagram can focus on what's new.
 
 <div class="diagram-wrap">
 <svg viewBox="0 0 660 260" width="660" height="260" role="img" aria-label="App tier routing through a hash function to one of three sharded, replicated databases">
@@ -517,7 +517,7 @@ Validate the URL scheme on creation — only allow `http`/`https`, and reject `j
 
 ### Abuse via volume
 
-Nothing stops a script from calling the create endpoint in a tight loop to farm short links for spam. Rate limiting the create endpoint per API key or IP (see [Rate Limiting & Backpressure](#/rate-limiting)) is the standard defense. The redirect endpoint is rate-limited too, but much more loosely, since legitimate viral traffic looks identical to a lot of redirect calls in a short window and shouldn't be penalized for it.
+Nothing stops a script from calling the create endpoint in a tight loop to farm short links for spam. Rate limiting the create endpoint per API key or IP (see [Rate Limiting & Backpressure](#/systems/rate-limiting)) is the standard defense. The redirect endpoint is rate-limited too, but much more loosely, since legitimate viral traffic looks identical to a lot of redirect calls in a short window and shouldn't be penalized for it.
 
 ### Guessable codes
 

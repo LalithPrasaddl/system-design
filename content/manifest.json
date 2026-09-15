@@ -1,312 +1,338 @@
 {
-  "siteTitle": "System Design, Learned",
-  "modules": [
+  "siteTitle": "Designs, Learned",
+  "tagline": "Interactive, first-principles paths through the systems people build.",
+  "pages": [
     {
-      "id": "start-here",
-      "title": "Start Here",
-      "sections": [
-        {
-          "id": "welcome",
-          "title": "Welcome & How to Use This",
-          "file": "start-here/welcome.md"
-        },
-        {
-          "id": "about-this-content",
-          "title": "How This Content Was Made",
-          "file": "start-here/about-this-content.md"
-        },
-        {
-          "id": "roadmap",
-          "title": "Course Map",
-          "file": "start-here/roadmap.md"
-        }
-      ]
-    },
+      "id": "about-this-content",
+      "title": "How This Content Is Made",
+      "file": "site/about-this-content.md"
+    }
+  ],
+  "tracks": [
     {
-      "id": "foundations",
-      "title": "1. Foundations",
-      "sections": [
+      "id": "systems",
+      "title": "System Design",
+      "blurb": "How large software systems are put together — from the network up through storage, scaling, and real architectures.",
+      "published": true,
+      "modules": [
         {
-          "id": "client-server-networking",
-          "title": "Client-Server Model & Networking Basics",
-          "file": "foundations/client-server-networking.md"
-        },
-        {
-          "id": "latency-throughput",
-          "title": "Latency, Throughput, and the Numbers Everyone Should Know",
-          "file": "foundations/latency-throughput.md"
-        },
-        {
-          "id": "communication-styles",
-          "title": "Communication Styles: REST, RPC, GraphQL, Sync vs Async",
-          "file": "foundations/communication-styles.md"
-        }
-      ]
-    },
-    {
-      "id": "building-blocks",
-      "title": "2. Building Blocks",
-      "sections": [
-        {
-          "id": "scaling-fundamentals",
-          "title": "Scaling Fundamentals",
-          "file": "building-blocks/scaling-fundamentals.md"
-        },
-        {
-          "id": "service-decomposition",
-          "title": "Service Decomposition",
-          "file": "building-blocks/service-decomposition.md"
-        },
-        {
-          "id": "load-balancing",
-          "title": "Load Balancing",
-          "file": "building-blocks/load-balancing.md"
-        },
-        {
-          "id": "caching",
-          "title": "Caching",
-          "file": "building-blocks/caching.md"
-        },
-        {
-          "id": "databases-relational",
-          "title": "Databases I — Relational Fundamentals",
-          "file": "building-blocks/databases-relational.md"
-        },
-        {
-          "id": "databases-nosql",
-          "title": "Databases II — NoSQL Models",
-          "file": "building-blocks/databases-nosql.md"
-        },
-        {
-          "id": "replication",
-          "title": "Replication",
-          "file": "building-blocks/replication.md"
-        },
-        {
-          "id": "partitioning-sharding",
-          "title": "Partitioning & Sharding",
-          "file": "building-blocks/partitioning-sharding.md"
-        },
-        {
-          "id": "multi-region-dr",
-          "title": "Multi-Region & Disaster Recovery",
-          "file": "building-blocks/multi-region-dr.md"
-        },
-        {
-          "id": "consistency-cap",
-          "title": "Consistency Models & CAP/PACELC",
-          "file": "building-blocks/consistency-cap.md",
-          "branches": [
+          "id": "start-here",
+          "title": "Start Here",
+          "sections": [
             {
-              "id": "consensus",
-              "title": "Consensus (Raft/Paxos)",
-              "file": "building-blocks/consensus.md"
+              "id": "welcome",
+              "title": "Welcome & How to Use This",
+              "file": "start-here/welcome.md"
+            },
+            {
+              "id": "roadmap",
+              "title": "Course Map",
+              "file": "start-here/roadmap.md"
             }
           ]
         },
         {
-          "id": "distributed-locking",
-          "title": "Distributed Locking & Leader Election",
-          "file": "building-blocks/distributed-locking.md"
-        },
-        {
-          "id": "message-queues",
-          "title": "Message Queues & Event-Driven Architecture",
-          "file": "building-blocks/message-queues.md",
-          "branches": [
+          "id": "foundations",
+          "title": "1. Foundations",
+          "sections": [
             {
-              "id": "log-based-systems",
-              "title": "Log-Based Systems (Kafka Internals)",
-              "file": "building-blocks/log-based-systems.md"
+              "id": "client-server-networking",
+              "title": "Client-Server Model & Networking Basics",
+              "file": "foundations/client-server-networking.md"
+            },
+            {
+              "id": "latency-throughput",
+              "title": "Latency, Throughput, and the Numbers Everyone Should Know",
+              "file": "foundations/latency-throughput.md"
+            },
+            {
+              "id": "communication-styles",
+              "title": "Communication Styles: REST, RPC, GraphQL, Sync vs Async",
+              "file": "foundations/communication-styles.md"
             }
           ]
         },
         {
-          "id": "batch-vs-stream",
-          "title": "Batch vs. Stream Processing",
-          "file": "building-blocks/batch-vs-stream.md"
-        },
-        {
-          "id": "idempotency",
-          "title": "Idempotency & Exactly-Once Delivery",
-          "file": "building-blocks/idempotency.md"
-        },
-        {
-          "id": "storage-engines",
-          "title": "Storage Engines",
-          "file": "building-blocks/storage-engines.md",
-          "branches": [
+          "id": "building-blocks",
+          "title": "2. Building Blocks",
+          "sections": [
             {
-              "id": "lsm-vs-btree",
-              "title": "LSM-Trees vs. B-Trees",
-              "file": "building-blocks/lsm-vs-btree.md"
+              "id": "scaling-fundamentals",
+              "title": "Scaling Fundamentals",
+              "file": "building-blocks/scaling-fundamentals.md"
+            },
+            {
+              "id": "service-decomposition",
+              "title": "Service Decomposition",
+              "file": "building-blocks/service-decomposition.md"
+            },
+            {
+              "id": "load-balancing",
+              "title": "Load Balancing",
+              "file": "building-blocks/load-balancing.md"
+            },
+            {
+              "id": "caching",
+              "title": "Caching",
+              "file": "building-blocks/caching.md"
+            },
+            {
+              "id": "databases-relational",
+              "title": "Databases I — Relational Fundamentals",
+              "file": "building-blocks/databases-relational.md"
+            },
+            {
+              "id": "databases-nosql",
+              "title": "Databases II — NoSQL Models",
+              "file": "building-blocks/databases-nosql.md"
+            },
+            {
+              "id": "replication",
+              "title": "Replication",
+              "file": "building-blocks/replication.md"
+            },
+            {
+              "id": "partitioning-sharding",
+              "title": "Partitioning & Sharding",
+              "file": "building-blocks/partitioning-sharding.md"
+            },
+            {
+              "id": "multi-region-dr",
+              "title": "Multi-Region & Disaster Recovery",
+              "file": "building-blocks/multi-region-dr.md"
+            },
+            {
+              "id": "consistency-cap",
+              "title": "Consistency Models & CAP/PACELC",
+              "file": "building-blocks/consistency-cap.md",
+              "branches": [
+                {
+                  "id": "consensus",
+                  "title": "Consensus (Raft/Paxos)",
+                  "file": "building-blocks/consensus.md"
+                }
+              ]
+            },
+            {
+              "id": "distributed-locking",
+              "title": "Distributed Locking & Leader Election",
+              "file": "building-blocks/distributed-locking.md"
+            },
+            {
+              "id": "message-queues",
+              "title": "Message Queues & Event-Driven Architecture",
+              "file": "building-blocks/message-queues.md",
+              "branches": [
+                {
+                  "id": "log-based-systems",
+                  "title": "Log-Based Systems (Kafka Internals)",
+                  "file": "building-blocks/log-based-systems.md"
+                }
+              ]
+            },
+            {
+              "id": "batch-vs-stream",
+              "title": "Batch vs. Stream Processing",
+              "file": "building-blocks/batch-vs-stream.md"
+            },
+            {
+              "id": "idempotency",
+              "title": "Idempotency & Exactly-Once Delivery",
+              "file": "building-blocks/idempotency.md"
+            },
+            {
+              "id": "storage-engines",
+              "title": "Storage Engines",
+              "file": "building-blocks/storage-engines.md",
+              "branches": [
+                {
+                  "id": "lsm-vs-btree",
+                  "title": "LSM-Trees vs. B-Trees",
+                  "file": "building-blocks/lsm-vs-btree.md"
+                }
+              ]
+            },
+            {
+              "id": "rate-limiting",
+              "title": "Rate Limiting & Backpressure",
+              "file": "building-blocks/rate-limiting.md"
+            },
+            {
+              "id": "security-authentication",
+              "title": "Security & Authentication",
+              "file": "building-blocks/security-authentication.md"
+            },
+            {
+              "id": "search-indexing",
+              "title": "Search & Indexing at Scale",
+              "file": "building-blocks/search-indexing.md"
+            },
+            {
+              "id": "observability",
+              "title": "Observability",
+              "file": "building-blocks/observability.md"
             }
           ]
         },
         {
-          "id": "rate-limiting",
-          "title": "Rate Limiting & Backpressure",
-          "file": "building-blocks/rate-limiting.md"
+          "id": "frontend-building-blocks",
+          "title": "3. Frontend Building Blocks",
+          "sections": [
+            {
+              "id": "rendering-strategies",
+              "title": "Rendering Strategies",
+              "file": "frontend-building-blocks/rendering-strategies.md"
+            },
+            {
+              "id": "rendering-performance",
+              "title": "Critical Rendering Path & Performance",
+              "file": "frontend-building-blocks/rendering-performance.md"
+            },
+            {
+              "id": "client-data-caching",
+              "title": "Client-Side Data & Caching",
+              "file": "frontend-building-blocks/client-data-caching.md"
+            },
+            {
+              "id": "client-storage",
+              "title": "Client-Side Storage",
+              "file": "frontend-building-blocks/client-storage.md"
+            },
+            {
+              "id": "cdn-edge-delivery",
+              "title": "CDNs & Edge Delivery",
+              "file": "frontend-building-blocks/cdn-edge-delivery.md"
+            },
+            {
+              "id": "realtime-delivery",
+              "title": "Real-Time Delivery",
+              "file": "frontend-building-blocks/realtime-delivery.md"
+            },
+            {
+              "id": "offline-resilience",
+              "title": "Offline & Resilience",
+              "file": "frontend-building-blocks/offline-resilience.md"
+            },
+            {
+              "id": "bff-api-shape",
+              "title": "Backend-for-Frontend & API Shape",
+              "file": "frontend-building-blocks/bff-api-shape.md"
+            },
+            {
+              "id": "frontend-security",
+              "title": "Frontend Security",
+              "file": "frontend-building-blocks/frontend-security.md"
+            },
+            {
+              "id": "micro-frontends",
+              "title": "Micro-Frontends & Multi-Team Scaling",
+              "file": "frontend-building-blocks/micro-frontends.md"
+            }
+          ]
         },
         {
-          "id": "security-authentication",
-          "title": "Security & Authentication",
-          "file": "building-blocks/security-authentication.md"
-        },
-        {
-          "id": "search-indexing",
-          "title": "Search & Indexing at Scale",
-          "file": "building-blocks/search-indexing.md"
-        },
-        {
-          "id": "observability",
-          "title": "Observability",
-          "file": "building-blocks/observability.md"
+          "id": "case-studies",
+          "title": "4. Case Studies",
+          "sections": [
+            {
+              "id": "url-shortener",
+              "title": "URL Shortener",
+              "file": "case-studies/url-shortener.md"
+            }
+          ]
         }
       ]
     },
     {
-      "id": "frontend-building-blocks",
-      "title": "3. Frontend Building Blocks",
-      "sections": [
+      "id": "ai",
+      "title": "AI & LLMs",
+      "blurb": "What language models actually do, and how the systems around them — retrieval, tools, agents, serving — are designed.",
+      "published": true,
+      "modules": [
         {
-          "id": "rendering-strategies",
-          "title": "Rendering Strategies",
-          "file": "frontend-building-blocks/rendering-strategies.md"
-        },
-        {
-          "id": "rendering-performance",
-          "title": "Critical Rendering Path & Performance",
-          "file": "frontend-building-blocks/rendering-performance.md"
-        },
-        {
-          "id": "client-data-caching",
-          "title": "Client-Side Data & Caching",
-          "file": "frontend-building-blocks/client-data-caching.md"
-        },
-        {
-          "id": "client-storage",
-          "title": "Client-Side Storage",
-          "file": "frontend-building-blocks/client-storage.md"
-        },
-        {
-          "id": "cdn-edge-delivery",
-          "title": "CDNs & Edge Delivery",
-          "file": "frontend-building-blocks/cdn-edge-delivery.md"
-        },
-        {
-          "id": "realtime-delivery",
-          "title": "Real-Time Delivery",
-          "file": "frontend-building-blocks/realtime-delivery.md"
-        },
-        {
-          "id": "offline-resilience",
-          "title": "Offline & Resilience",
-          "file": "frontend-building-blocks/offline-resilience.md"
-        },
-        {
-          "id": "bff-api-shape",
-          "title": "Backend-for-Frontend & API Shape",
-          "file": "frontend-building-blocks/bff-api-shape.md"
-        },
-        {
-          "id": "frontend-security",
-          "title": "Frontend Security",
-          "file": "frontend-building-blocks/frontend-security.md"
-        },
-        {
-          "id": "micro-frontends",
-          "title": "Micro-Frontends & Multi-Team Scaling",
-          "file": "frontend-building-blocks/micro-frontends.md"
+          "id": "llms-applied-ai",
+          "title": "LLMs & Applied AI",
+          "sections": [
+            {
+              "id": "llm-vocabulary",
+              "title": "LLM Vocabulary",
+              "file": "llms-applied-ai/llm-vocabulary.md"
+            },
+            {
+              "id": "tokenization",
+              "title": "Tokenization",
+              "file": "llms-applied-ai/tokenization.md"
+            },
+            {
+              "id": "training-lifecycle",
+              "title": "Training Lifecycle",
+              "file": "llms-applied-ai/training-lifecycle.md"
+            },
+            {
+              "id": "datasets-data-pipelines",
+              "title": "Datasets & Data Pipelines",
+              "file": "llms-applied-ai/datasets-data-pipelines.md"
+            },
+            {
+              "id": "fine-tuning",
+              "title": "Fine-Tuning in Practice",
+              "file": "llms-applied-ai/fine-tuning.md"
+            },
+            {
+              "id": "embeddings-vector-search",
+              "title": "Embeddings & Vector Search",
+              "file": "llms-applied-ai/embeddings-vector-search.md"
+            },
+            {
+              "id": "rag",
+              "title": "Retrieval-Augmented Generation (RAG)",
+              "file": "llms-applied-ai/rag.md"
+            },
+            {
+              "id": "prompting-context-engineering",
+              "title": "Prompting & Context Engineering",
+              "file": "llms-applied-ai/prompting-context-engineering.md"
+            },
+            {
+              "id": "model-serving-inference",
+              "title": "Model Serving & Inference Infrastructure",
+              "file": "llms-applied-ai/model-serving-inference.md"
+            },
+            {
+              "id": "evaluation-monitoring",
+              "title": "Evaluation & Monitoring",
+              "file": "llms-applied-ai/evaluation-monitoring.md"
+            },
+            {
+              "id": "tool-use-function-calling",
+              "title": "Tool Use & Function Calling",
+              "file": "llms-applied-ai/tool-use-function-calling.md"
+            },
+            {
+              "id": "agents",
+              "title": "Agents",
+              "file": "llms-applied-ai/agents.md"
+            },
+            {
+              "id": "mcp",
+              "title": "Model Context Protocol (MCP)",
+              "file": "llms-applied-ai/mcp.md"
+            },
+            {
+              "id": "orchestration-harnesses",
+              "title": "Orchestration & Agent Harnesses",
+              "file": "llms-applied-ai/orchestration-harnesses.md"
+            }
+          ]
         }
       ]
     },
     {
-      "id": "llms-applied-ai",
-      "title": "4. LLMs & Applied AI",
-      "sections": [
-        {
-          "id": "llm-vocabulary",
-          "title": "LLM Vocabulary",
-          "file": "llms-applied-ai/llm-vocabulary.md"
-        },
-        {
-          "id": "tokenization",
-          "title": "Tokenization",
-          "file": "llms-applied-ai/tokenization.md"
-        },
-        {
-          "id": "training-lifecycle",
-          "title": "Training Lifecycle",
-          "file": "llms-applied-ai/training-lifecycle.md"
-        },
-        {
-          "id": "datasets-data-pipelines",
-          "title": "Datasets & Data Pipelines",
-          "file": "llms-applied-ai/datasets-data-pipelines.md"
-        },
-        {
-          "id": "fine-tuning",
-          "title": "Fine-Tuning in Practice",
-          "file": "llms-applied-ai/fine-tuning.md"
-        },
-        {
-          "id": "embeddings-vector-search",
-          "title": "Embeddings & Vector Search",
-          "file": "llms-applied-ai/embeddings-vector-search.md"
-        },
-        {
-          "id": "rag",
-          "title": "Retrieval-Augmented Generation (RAG)",
-          "file": "llms-applied-ai/rag.md"
-        },
-        {
-          "id": "prompting-context-engineering",
-          "title": "Prompting & Context Engineering",
-          "file": "llms-applied-ai/prompting-context-engineering.md"
-        },
-        {
-          "id": "model-serving-inference",
-          "title": "Model Serving & Inference Infrastructure",
-          "file": "llms-applied-ai/model-serving-inference.md"
-        },
-        {
-          "id": "evaluation-monitoring",
-          "title": "Evaluation & Monitoring",
-          "file": "llms-applied-ai/evaluation-monitoring.md"
-        },
-        {
-          "id": "tool-use-function-calling",
-          "title": "Tool Use & Function Calling",
-          "file": "llms-applied-ai/tool-use-function-calling.md"
-        },
-        {
-          "id": "agents",
-          "title": "Agents",
-          "file": "llms-applied-ai/agents.md"
-        },
-        {
-          "id": "mcp",
-          "title": "Model Context Protocol (MCP)",
-          "file": "llms-applied-ai/mcp.md"
-        },
-        {
-          "id": "orchestration-harnesses",
-          "title": "Orchestration & Agent Harnesses",
-          "file": "llms-applied-ai/orchestration-harnesses.md"
-        }
-      ]
-    },
-    {
-      "id": "case-studies",
-      "title": "5. Case Studies",
-      "sections": [
-        {
-          "id": "url-shortener",
-          "title": "URL Shortener",
-          "file": "case-studies/url-shortener.md"
-        }
-      ]
+      "id": "electronics",
+      "title": "Electronics",
+      "blurb": "Analog and digital hardware design — signals, power, logic, and the boards they live on.",
+      "published": false,
+      "modules": []
     }
   ]
 }

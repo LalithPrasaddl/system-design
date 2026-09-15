@@ -3,11 +3,13 @@
 
   const CONTENT_ROOT = "content/";
   const PROGRESS_KEY = "sd-progress-v1";
+  const PROGRESS_MIGRATED_KEY = "sd-progress-tracks-migrated-v1";
   const TRACKING_KEY = "sd-track-progress-v1";
   const NAV_COLLAPSE_KEY = "sd-nav-collapsed-v1";
 
   const contentEl = document.getElementById("content");
   const navTreeEl = document.getElementById("nav-tree");
+  const trackNameEl = document.getElementById("track-name");
   const progressSummaryEl = document.getElementById("progress-summary");
   const sidebarEl = document.getElementById("sidebar");
   const sidebarToggle = document.getElementById("sidebar-toggle");
@@ -20,13 +22,33 @@
   const searchClose = document.getElementById("search-close");
   const searchResultsEl = document.getElementById("search-results");
 
-  /** @type {{modules: Array}} */
+  /** @type {{siteTitle: string, tagline: string, tracks: Array}} */
   let manifest = null;
-  /** Flat ordered list of {id, title, file, moduleTitle, isBranch} for prev/next + lookup */
-  let flatSections = [];
-  /** Map id -> section entry */
-  let sectionsById = new Map();
-  /** Lazily-built full-text search index: [{id, title, moduleTitle, isBranch, text, textLower}] */
+  /**
+   * Published tracks only. An unpublished track keeps all of its content in
+   * the repo but is invisible to the hub, the nav, and the search index —
+   * unpublishing is one boolean in the manifest, not a deletion.
+   */
+  let tracks = [];
+  /** Map track id -> track */
+  let tracksById = new Map();
+  /** Track currently being read; null while the hub is showing */
+  let currentTrackId = null;
+  /** Map track id -> flat ordered list of sections (prev/next runs inside a track) */
+  let sectionsByTrack = new Map();
+  /** Map "<trackId>/<sectionId>" -> section entry */
+  let sectionsByPath = new Map();
+  /** Map bare "<sectionId>" -> section entry, for links written before tracks existed */
+  let sectionsByLegacyId = new Map();
+  /** Every section across every published track, in track order */
+  let allSections = [];
+  /**
+   * Site-level pages belong to the whole site rather than to any one track,
+   * so they live outside the track tree: no sidebar, no progress checkbox,
+   * no place in a prev/next chain. They route off a bare "#/<id>".
+   */
+  let sitePagesById = new Map();
+  /** Lazily-built full-text search index: [{path, title, moduleTitle, trackTitle, isBranch, text, textLower}] */
   let searchIndex = null;
   let searchIndexPromise = null;
   let searchResults = [];
@@ -44,20 +66,42 @@
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
   }
 
-  function isComplete(id) {
-    return !!loadProgress()[id];
+  function isComplete(path) {
+    return !!loadProgress()[path];
   }
 
-  function setComplete(id, value) {
+  function setComplete(path, value) {
     const progress = loadProgress();
     if (value) {
-      progress[id] = true;
+      progress[path] = true;
     } else {
-      delete progress[id];
+      delete progress[path];
     }
     saveProgress(progress);
     renderProgressSummary();
     updateNavCompletionMarks();
+  }
+
+  /**
+   * Progress used to be keyed by bare section id, which stops being unique
+   * once tracks can each have their own "caching" or "transformers". Rewrite
+   * the stored keys to "<track>/<section>" once, so nobody loses the pages
+   * they had already marked read.
+   */
+  function migrateProgressKeys() {
+    if (localStorage.getItem(PROGRESS_MIGRATED_KEY) === "1") return;
+    const progress = loadProgress();
+    let changed = false;
+    Object.keys(progress).forEach((key) => {
+      if (key.indexOf("/") !== -1) return;
+      const sec = sectionsByLegacyId.get(key);
+      if (!sec) return;
+      progress[sec.path] = true;
+      delete progress[key];
+      changed = true;
+    });
+    if (changed) saveProgress(progress);
+    localStorage.setItem(PROGRESS_MIGRATED_KEY, "1");
   }
 
   function isTrackingEnabled() {
@@ -70,8 +114,9 @@
   }
 
   function renderProgressSummary() {
-    const total = flatSections.length;
-    const done = flatSections.filter((s) => isComplete(s.id)).length;
+    const flat = sectionsByTrack.get(currentTrackId) || [];
+    const total = flat.length;
+    const done = flat.filter((s) => isComplete(s.path)).length;
     progressSummaryEl.textContent = total ? `${done} / ${total} complete` : "";
   }
 
@@ -82,17 +127,39 @@
     });
   }
 
-  function flattenSections(modules) {
+  function decorateSection(sec, mod, track, isBranch) {
+    return {
+      ...sec,
+      moduleTitle: mod.title,
+      trackId: track.id,
+      trackTitle: track.title,
+      path: `${track.id}/${sec.id}`,
+      isBranch,
+    };
+  }
+
+  function flattenTrack(track) {
     const flat = [];
-    modules.forEach((mod) => {
+    track.modules.forEach((mod) => {
       mod.sections.forEach((sec) => {
-        flat.push({ ...sec, moduleTitle: mod.title, isBranch: false });
+        flat.push(decorateSection(sec, mod, track, false));
         (sec.branches || []).forEach((branch) => {
-          flat.push({ ...branch, moduleTitle: mod.title, isBranch: true, parentId: sec.id });
+          flat.push({ ...decorateSection(branch, mod, track, true), parentId: sec.id });
         });
       });
     });
     return flat;
+  }
+
+  function stripModuleNumber(title) {
+    return title.replace(/^\d+\.\s*/, "");
+  }
+
+  /** Resolve a bare id to its canonical href — site page or track section. */
+  function hrefForSectionId(id) {
+    if (sitePagesById.has(id)) return `#/${id}`;
+    const sec = sectionsByLegacyId.get(id);
+    return sec ? `#/${sec.path}` : "#/";
   }
 
   function loadCollapsedGroups() {
@@ -125,19 +192,24 @@
     saveCollapsedGroups(state);
   }
 
-  function buildSidebar(modules) {
+  function buildSidebar(track, activeSectionId) {
     navTreeEl.innerHTML = "";
+    trackNameEl.textContent = track.title;
+    const modules = track.modules;
     const stored = loadCollapsedGroups();
-    const currentHash = window.location.hash.replace(/^#\/?/, "");
-    const activeModuleId = moduleIdForSection(modules, currentHash) || (modules[0] && modules[0].id);
+    const activeModuleId = moduleIdForSection(modules, activeSectionId) || (modules[0] && modules[0].id);
 
     modules.forEach((mod) => {
+      // Module ids only have to be unique inside their own track, so the
+      // collapse state is namespaced by track.
+      const groupKey = `${track.id}/${mod.id}`;
+
       const group = document.createElement("div");
       group.className = "nav-group";
-      group.setAttribute("data-module-id", mod.id);
+      group.setAttribute("data-module-id", groupKey);
 
-      const isCollapsed = Object.prototype.hasOwnProperty.call(stored, mod.id)
-        ? stored[mod.id]
+      const isCollapsed = Object.prototype.hasOwnProperty.call(stored, groupKey)
+        ? stored[groupKey]
         : mod.id !== activeModuleId;
       group.classList.toggle("is-collapsed", isCollapsed);
 
@@ -145,7 +217,7 @@
       heading.type = "button";
       heading.className = "nav-group-title";
       heading.setAttribute("aria-expanded", String(!isCollapsed));
-      heading.setAttribute("aria-controls", `nav-list-${mod.id}`);
+      heading.setAttribute("aria-controls", `nav-list-${track.id}-${mod.id}`);
 
       const label = document.createElement("span");
       label.className = "nav-group-title-text";
@@ -159,23 +231,23 @@
       heading.appendChild(chevron);
 
       heading.addEventListener("click", () => {
-        setGroupCollapsed(group, heading, mod.id, !group.classList.contains("is-collapsed"));
+        setGroupCollapsed(group, heading, groupKey, !group.classList.contains("is-collapsed"));
       });
 
       group.appendChild(heading);
 
       const listWrap = document.createElement("div");
       listWrap.className = "nav-list-wrap";
-      listWrap.id = `nav-list-${mod.id}`;
+      listWrap.id = `nav-list-${track.id}-${mod.id}`;
 
       const list = document.createElement("ul");
       list.className = "nav-list";
 
       mod.sections.forEach((sec) => {
-        list.appendChild(buildNavItem(sec, false));
+        list.appendChild(buildNavItem(sec, track.id, false));
 
         (sec.branches || []).forEach((branch) => {
-          list.appendChild(buildNavItem(branch, true));
+          list.appendChild(buildNavItem(branch, track.id, true));
         });
       });
 
@@ -185,13 +257,14 @@
     });
   }
 
-  function buildNavItem(sec, isBranch) {
+  function buildNavItem(sec, trackId, isBranch) {
+    const path = `${trackId}/${sec.id}`;
     const li = document.createElement("li");
     li.className = "nav-item" + (isBranch ? " nav-item-branch" : "");
-    li.setAttribute("data-section-id", sec.id);
+    li.setAttribute("data-section-id", path);
 
     const link = document.createElement("a");
-    link.href = `#/${sec.id}`;
+    link.href = `#/${path}`;
     link.className = "nav-link";
 
     const check = document.createElement("span");
@@ -215,12 +288,12 @@
     return li;
   }
 
-  function setActiveNav(id) {
+  function setActiveNav(path) {
     navTreeEl.querySelectorAll(".nav-item").forEach((el) => {
-      el.classList.toggle("is-active", el.getAttribute("data-section-id") === id);
+      el.classList.toggle("is-active", el.getAttribute("data-section-id") === path);
     });
 
-    const activeItem = navTreeEl.querySelector(`.nav-item[data-section-id="${id}"]`);
+    const activeItem = navTreeEl.querySelector(`.nav-item[data-section-id="${path}"]`);
     const group = activeItem && activeItem.closest(".nav-group");
     if (group && group.classList.contains("is-collapsed")) {
       const heading = group.querySelector(".nav-group-title");
@@ -230,19 +303,28 @@
   }
 
   function renderNotFound() {
+    document.body.classList.remove("hub-view");
     contentEl.innerHTML = `
       <div class="page">
         <h1>Page not found</h1>
-        <p>That section doesn't exist. <a href="#/${flatSections[0] ? flatSections[0].id : ""}">Go to the start</a>.</p>
+        <p>That page doesn't exist. <a href="#/">Back to all tracks</a>.</p>
       </div>`;
   }
 
-  async function renderSection(id) {
-    const sec = sectionsById.get(id);
+  async function renderSection(path) {
+    const sec = sectionsByPath.get(path);
     if (!sec) {
       renderNotFound();
       return;
     }
+
+    const track = tracksById.get(sec.trackId);
+    if (sec.trackId !== currentTrackId) {
+      currentTrackId = sec.trackId;
+      buildSidebar(track, sec.id);
+      renderProgressSummary();
+    }
+    document.body.classList.remove("hub-view");
 
     contentEl.innerHTML = '<div class="loading">Loading…</div>';
 
@@ -261,42 +343,146 @@
     }
 
     const html = window.marked.parse(markdown);
-    const idx = flatSections.findIndex((s) => s.id === id);
-    const prev = idx > 0 ? flatSections[idx - 1] : null;
-    const next = idx >= 0 && idx < flatSections.length - 1 ? flatSections[idx + 1] : null;
+    // Prev/next walks the current track only — the last AI page should not
+    // hand the reader off to the first Electronics page.
+    const flat = sectionsByTrack.get(sec.trackId) || [];
+    const idx = flat.findIndex((s) => s.path === path);
+    const prev = idx > 0 ? flat[idx - 1] : null;
+    const next = idx >= 0 && idx < flat.length - 1 ? flat[idx + 1] : null;
 
     contentEl.innerHTML = `
       <article class="page">
-        <div class="eyebrow">${escapeHtml(sec.moduleTitle)}${sec.isBranch ? " · Deep Dive" : ""}</div>
+        <div class="eyebrow">${escapeHtml(sec.trackTitle)} · ${escapeHtml(stripModuleNumber(sec.moduleTitle))}${sec.isBranch ? " · Deep Dive" : ""}</div>
         ${html}
         <div class="complete-row">
           <label class="complete-toggle">
-            <input type="checkbox" id="mark-complete" ${isComplete(id) ? "checked" : ""} />
+            <input type="checkbox" id="mark-complete" ${isComplete(path) ? "checked" : ""} />
             Mark as complete
           </label>
         </div>
         <nav class="page-nav">
-          ${prev ? `<a class="page-nav-link prev" href="#/${prev.id}">← ${escapeHtml(prev.title)}</a>` : "<span></span>"}
-          ${next ? `<a class="page-nav-link next" href="#/${next.id}">${escapeHtml(next.title)} →</a>` : "<span></span>"}
+          ${prev ? `<a class="page-nav-link prev" href="#/${prev.path}">← ${escapeHtml(prev.title)}</a>` : "<span></span>"}
+          ${next ? `<a class="page-nav-link next" href="#/${next.path}">${escapeHtml(next.title)} →</a>` : "<span></span>"}
         </nav>
-        <div class="ai-note">Drafted with AI assistance and reviewed for accuracy to the best of our knowledge — not a citation-grade source. <a href="#/about-this-content">How this content is made →</a></div>
+        <div class="ai-note">Drafted with AI assistance and reviewed for accuracy to the best of our knowledge — not a citation-grade source. <a href="${hrefForSectionId("about-this-content")}">How this content is made →</a></div>
       </article>`;
 
     document.getElementById("mark-complete").addEventListener("change", (e) => {
-      setComplete(id, e.target.checked);
+      setComplete(path, e.target.checked);
     });
 
     initCaseStudyTabs(contentEl);
     initCaseStudyStages(contentEl);
     initFailToggles(contentEl);
 
-    document.title = `${sec.title} · System Design, Learned`;
+    document.title = `${sec.title} · ${track.title} · ${manifest.siteTitle}`;
     contentEl.focus();
     contentEl.scrollTop = 0;
     window.scrollTo(0, 0);
 
-    setActiveNav(id);
+    setActiveNav(path);
+    updateNavCompletionMarks();
     closeSidebarOnMobile();
+  }
+
+  /**
+   * A site page renders in the hub's chrome-free layout — it is deliberately
+   * not in any track's sidebar, because it describes the whole site.
+   */
+  async function renderSitePage(id) {
+    const page = sitePagesById.get(id);
+    if (!page) {
+      renderNotFound();
+      return;
+    }
+
+    currentTrackId = null;
+    document.body.classList.add("hub-view");
+    closeSidebar();
+    navTreeEl.innerHTML = "";
+    trackNameEl.textContent = "";
+    progressSummaryEl.textContent = "";
+
+    contentEl.innerHTML = '<div class="loading">Loading…</div>';
+
+    let markdown;
+    try {
+      const res = await fetch(CONTENT_ROOT + page.file, { cache: "no-cache" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      markdown = await res.text();
+    } catch (err) {
+      contentEl.innerHTML = `
+        <div class="page">
+          <h1>Couldn't load this page</h1>
+          <p>There was a problem fetching <code>${page.file}</code>. (${err.message})</p>
+        </div>`;
+      return;
+    }
+
+    contentEl.innerHTML = `
+      <article class="page site-page">
+        <a class="site-page-back" href="#/">← All tracks</a>
+        ${window.marked.parse(markdown)}
+      </article>`;
+
+    document.title = `${page.title} · ${manifest.siteTitle}`;
+    contentEl.focus();
+    contentEl.scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+
+  /**
+   * The hub is the site's front door: one card per published track. Adding a
+   * domain is a new track in the manifest; retiring one is `published: false`,
+   * which takes it off the hub, the nav and the search index while leaving
+   * every markdown file exactly where it is.
+   */
+  function renderHub() {
+    currentTrackId = null;
+    document.body.classList.add("hub-view");
+    closeSidebar();
+    navTreeEl.innerHTML = "";
+    trackNameEl.textContent = "";
+    progressSummaryEl.textContent = "";
+
+    const cards = tracks
+      .map((track) => {
+        const flat = sectionsByTrack.get(track.id) || [];
+        const done = flat.filter((s) => isComplete(s.path)).length;
+        const first = flat[0];
+        const modules = track.modules
+          .map((mod) => `<li>${escapeHtml(stripModuleNumber(mod.title))}</li>`)
+          .join("");
+        return `
+          <a class="track-card" href="${first ? `#/${first.path}` : "#/"}">
+            <h2 class="track-card-title">${escapeHtml(track.title)}</h2>
+            <p class="track-card-blurb">${escapeHtml(track.blurb || "")}</p>
+            <ul class="track-card-modules">${modules}</ul>
+            <div class="track-card-foot">
+              <span>${flat.length} ${flat.length === 1 ? "page" : "pages"}</span>
+              <span class="track-card-progress">${done} read</span>
+              <span class="track-card-go" aria-hidden="true">→</span>
+            </div>
+          </a>`;
+      })
+      .join("");
+
+    contentEl.innerHTML = `
+      <div class="hub">
+        <header class="hub-header">
+          <h1>${escapeHtml(manifest.siteTitle)}</h1>
+          <p class="hub-tagline">${escapeHtml(manifest.tagline || "")}</p>
+        </header>
+        <div class="hub-grid">${cards}</div>
+        <p class="hub-foot">
+          <a href="${hrefForSectionId("about-this-content")}">How this content is made →</a>
+        </p>
+      </div>`;
+
+    document.title = manifest.siteTitle;
+    contentEl.focus();
+    contentEl.scrollTop = 0;
+    window.scrollTo(0, 0);
   }
 
   /**
@@ -475,18 +661,22 @@
 
   function ensureSearchIndex() {
     if (searchIndexPromise) return searchIndexPromise;
-    if (!flatSections.length) return Promise.resolve([]);
+    if (!allSections.length) return Promise.resolve([]);
+    // allSections only holds published tracks, so an unpublished track never
+    // leaks into results.
     searchIndexPromise = Promise.all(
-      flatSections.map((sec) =>
+      allSections.concat(sitePageEntries()).map((sec) =>
         fetch(CONTENT_ROOT + sec.file, { cache: "no-cache" })
           .then((res) => (res.ok ? res.text() : ""))
           .catch(() => "")
           .then((raw) => {
             const text = stripMarkdownToText(raw);
             return {
-              id: sec.id,
+              path: sec.path,
               title: sec.title,
               moduleTitle: sec.moduleTitle,
+              trackId: sec.trackId,
+              trackTitle: sec.trackTitle,
               isBranch: sec.isBranch,
               text,
               textLower: text.toLowerCase(),
@@ -498,6 +688,18 @@
       return entries;
     });
     return searchIndexPromise;
+  }
+
+  /** Site pages are searchable too, just without a track to belong to. */
+  function sitePageEntries() {
+    return Array.from(sitePagesById.values()).map((page) => ({
+      ...page,
+      path: page.id,
+      moduleTitle: "About this site",
+      trackId: null,
+      trackTitle: null,
+      isBranch: false,
+    }));
   }
 
   function scoreEntry(entry, queryLower, queryWords) {
@@ -513,6 +715,9 @@
     queryWords.forEach((w) => {
       if (entry.textLower.includes(w)) score += 3;
     });
+    // Search spans every track, but the track being read wins ties — the same
+    // word can be a topic in two of them.
+    if (entry.trackId === currentTrackId) score += 6;
     return score;
   }
 
@@ -546,12 +751,19 @@
       .sort((a, b) => b.score - a.score)
       .slice(0, 8)
       .map((r) => ({
-        id: r.entry.id,
+        path: r.entry.path,
         title: r.entry.title,
         moduleTitle: r.entry.moduleTitle,
+        trackTitle: r.entry.trackTitle,
         isBranch: r.entry.isBranch,
         snippet: extractSnippet(r.entry, queryLower, queryWords),
       }));
+  }
+
+  function searchResultMeta(r) {
+    return [r.trackTitle, stripModuleNumber(r.moduleTitle), r.isBranch ? "Deep Dive" : null]
+      .filter(Boolean)
+      .join(" · ");
   }
 
   function renderSearchResults(results, query) {
@@ -559,7 +771,7 @@
     searchSelectedIndex = results.length ? 0 : -1;
 
     if (!query.trim()) {
-      searchResultsEl.innerHTML = '<div class="search-hint">Type to search across every page in the course.</div>';
+      searchResultsEl.innerHTML = '<div class="search-hint">Type to search across every page in every track.</div>';
       return;
     }
     if (!searchIndex) {
@@ -575,7 +787,7 @@
       .map(
         (r, i) => `
         <button type="button" class="search-result${i === 0 ? " is-selected" : ""}" data-index="${i}" role="option">
-          <div class="search-result-title">${escapeHtml(r.title)}<span class="search-result-module">${escapeHtml(r.moduleTitle)}${r.isBranch ? " · Deep Dive" : ""}</span></div>
+          <div class="search-result-title">${escapeHtml(r.title)}<span class="search-result-module">${escapeHtml(searchResultMeta(r))}</span></div>
           <div class="search-result-snippet">${escapeHtml(r.snippet)}</div>
         </button>`
       )
@@ -594,7 +806,7 @@
 
   function navigateToSearchResult(result) {
     closeSearch();
-    window.location.hash = `#/${result.id}`;
+    window.location.hash = `#/${result.path}`;
   }
 
   function openSearch() {
@@ -660,14 +872,43 @@
   });
 
   function handleRoute() {
-    const hash = window.location.hash.replace(/^#\/?/, "");
+    const hash = window.location.hash.replace(/^#\/?/, "").replace(/\/+$/, "");
     if (!hash) {
-      if (flatSections.length) {
-        window.location.replace(`#/${flatSections[0].id}`);
-      }
+      renderHub();
       return;
     }
-    renderSection(hash);
+
+    // Site-level pages sit outside the tracks and keep a bare "#/<id>".
+    if (sitePagesById.has(hash)) {
+      renderSitePage(hash);
+      return;
+    }
+
+    const parts = hash.split("/");
+
+    // Canonical route: #/<track>/<section>
+    if (parts.length >= 2 && sectionsByPath.has(`${parts[0]}/${parts[1]}`)) {
+      renderSection(`${parts[0]}/${parts[1]}`);
+      return;
+    }
+
+    if (parts.length === 1) {
+      // #/<track> on its own opens that track at its first page.
+      const trackFlat = sectionsByTrack.get(parts[0]);
+      if (trackFlat && trackFlat.length) {
+        window.location.replace(`#/${trackFlat[0].path}`);
+        return;
+      }
+      // Links written before tracks existed were #/<section>. Rewrite them to
+      // the canonical path so old bookmarks keep working.
+      const legacy = sectionsByLegacyId.get(parts[0]);
+      if (legacy) {
+        window.location.replace(`#/${legacy.path}`);
+        return;
+      }
+    }
+
+    renderNotFound();
   }
 
   function openSidebar() {
@@ -702,12 +943,28 @@
       return;
     }
 
-    flatSections = flattenSections(manifest.modules);
-    sectionsById = new Map(flatSections.map((s) => [s.id, s]));
+    sitePagesById = new Map((manifest.pages || []).map((page) => [page.id, page]));
+    tracks = (manifest.tracks || []).filter((t) => t.published !== false);
+    tracksById = new Map(tracks.map((t) => [t.id, t]));
+    sectionsByTrack = new Map();
+    sectionsByPath = new Map();
+    sectionsByLegacyId = new Map();
+    allSections = [];
 
-    buildSidebar(manifest.modules);
-    renderProgressSummary();
-    updateNavCompletionMarks();
+    tracks.forEach((track) => {
+      const flat = flattenTrack(track);
+      sectionsByTrack.set(track.id, flat);
+      allSections = allSections.concat(flat);
+      flat.forEach((sec) => {
+        sectionsByPath.set(sec.path, sec);
+        // First track to claim a bare id wins the legacy alias; every link
+        // rendered by the app uses the full path, so this only ever serves
+        // hand-written or bookmarked pre-track URLs.
+        if (!sectionsByLegacyId.has(sec.id)) sectionsByLegacyId.set(sec.id, sec);
+      });
+    });
+
+    migrateProgressKeys();
 
     window.addEventListener("hashchange", handleRoute);
     handleRoute();

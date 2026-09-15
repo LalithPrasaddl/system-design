@@ -1,15 +1,23 @@
-# System Design, Learned
+# Designs, Learned
 
-An interactive, textbook-depth course on system design — client-server basics through building blocks (caching, databases, replication, consensus, queues, etc.) to full case studies. No prior system design experience assumed.
+Interactive, textbook-depth material on how things are designed, split into independent **tracks**. Each track is its own self-contained path with its own modules, ordering, and progress; the site's front door is a hub that lists them. No prior experience assumed.
+
+Current tracks:
+
+| Track | Status | Covers |
+| --- | --- | --- |
+| System Design | published | Client-server basics through building blocks (caching, databases, replication, consensus, queues) to full case studies |
+| AI & LLMs | published | What language models do, and the systems around them — retrieval, tools, agents, serving |
+| Electronics | unpublished | Analog and digital hardware design (no content yet) |
 
 ## Stack
 
 Plain HTML/CSS/JS. No framework, no build step, no server/backend.
 
-- **Routing:** hash-based (`#/section-id`), handled client-side in `assets/js/app.js`.
+- **Routing:** hash-based (`#/track-id/section-id`), handled client-side in `assets/js/app.js`. `#/` renders the track hub, and `#/page-id` a site-level page. A bare `#/section-id` — the URL shape used before tracks existed — still resolves and redirects itself to the canonical path, so old links and bookmarks keep working.
 - **Content:** Markdown files under `content/`, fetched and rendered at runtime with `marked.js` (vendored locally in `assets/js/vendor/`, not loaded from a CDN).
-- **Navigation:** driven entirely by `content/manifest.json` — the sidebar, section order, and prev/next links are all generated from it.
-- **Progress tracking:** a "mark as complete" checkbox per page, stored in the visitor's `localStorage`. No account, no server, no cross-device sync.
+- **Navigation:** driven entirely by `content/manifest.json` — the hub, the sidebar, section order, and prev/next links are all generated from it. The sidebar only ever shows the current track's modules, and prev/next never walks off the end of a track into the next one.
+- **Progress tracking:** a "mark as complete" checkbox per page, stored in the visitor's `localStorage` keyed by `track-id/section-id`. The sidebar's completion count is per track. No account, no server, no cross-device sync.
 
 Because there's no build step, the site can be served by pointing any static file server at the project root:
 
@@ -27,7 +35,8 @@ assets/
   js/app.js                 Router, sidebar builder, markdown fetch/render, progress tracking
   js/vendor/marked.min.js   Vendored markdown parser (not a CDN dependency)
 content/
-  manifest.json             The course tree: modules -> sections -> optional "branches"
+  manifest.json             The site tree: tracks -> modules -> sections -> optional "branches"
+  site/                      Site-level pages, owned by no track
   start-here/                Welcome + course map
   foundations/                One folder per module, one .md file per section
 ```
@@ -41,7 +50,35 @@ content/
    ```
 3. Optional "go deeper" content nests under a section via a `branches` array of the same shape — it renders as a collapsible sub-item in the sidebar, clearly marked optional, and does not interrupt the main prev/next flow.
 
-The `id` becomes the URL (`#/my-section-id`) and must be unique across the whole manifest.
+Section ids must be unique **within their track**, and form the URL together with the track id (`#/my-track-id/my-section-id`). Reusing an id across two tracks is fine and expected — "transformers" means one thing in AI and another in electronics — but note that a bare `#/my-section-id` legacy link then resolves to whichever track declares it first in the manifest, so prefer full paths when linking between pages.
+
+## Site-level pages
+
+Some pages describe the whole site rather than a track — "How This Content Is Made" is the current one. Those live in a top-level `pages` array in the manifest, alongside `tracks` rather than inside one:
+
+```json
+"pages": [
+  { "id": "about-this-content", "title": "How This Content Is Made", "file": "site/about-this-content.md" }
+]
+```
+
+A site page routes off a bare `#/page-id`, renders without a sidebar, and has no progress checkbox and no prev/next — it belongs to no track's reading order. It is reachable from the hub footer and from the footer of every content page, and it is included in search. Put its markdown under `content/site/`.
+
+## Adding or retiring a track
+
+A track is a top-level entry in `manifest.json`:
+
+```json
+{
+  "id": "electronics",
+  "title": "Electronics",
+  "blurb": "One sentence, shown on the hub card.",
+  "published": true,
+  "modules": [ ... ]
+}
+```
+
+Set `"published": false` to retire one. It disappears from the hub, the sidebar, and the search index, but every markdown file stays exactly where it is and the track comes back by flipping the flag — retiring a track is never a deletion.
 
 ## Content conventions
 
@@ -74,4 +111,4 @@ The `id` (`requirements`) must be unique within the page; the label (`Requiremen
 
 ## Status
 
-Content is being added incrementally, module by module. `content/manifest.json` is the source of truth for what currently exists.
+Content is being added incrementally, track by track and module by module. `content/manifest.json` is the source of truth for what currently exists and what is published.

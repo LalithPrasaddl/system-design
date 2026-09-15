@@ -22,4 +22,4 @@ Each topic explains the underlying mechanics — what's actually happening on th
 - The sidebar tracks your progress automatically. It's stored in your browser, not on a server, so it's private to your device.
 - "Go deeper" branches are optional. Skip them on a first pass and come back later.
 
-Start with [Client-Server Model & Networking Basics](#/client-server-networking).
+Start with [Client-Server Model & Networking Basics](#/systems/client-server-networking).

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>System Design, Learned</title>
-  <meta name="description" content="An interactive, browsable path through system design — from first principles to real architectures." />
+  <title>Designs, Learned</title>
+  <meta name="description" content="Interactive, first-principles paths through the systems people build — system design, AI, and more." />
   <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
@@ -13,7 +13,11 @@
   <div class="layout">
     <nav id="sidebar" class="sidebar">
       <div class="sidebar-header">
-        <a href="#/" class="brand">System Design</a>
+        <a href="#/" class="track-switcher">
+          <span class="track-switcher-back" aria-hidden="true">←</span>
+          <span class="track-switcher-label">All tracks</span>
+        </a>
+        <div class="track-name" id="track-name"></div>
         <button type="button" id="search-trigger" class="search-trigger" aria-haspopup="dialog">
           <span class="search-trigger-icon" aria-hidden="true">🔎</span>
           <span class="search-trigger-label">Search</span>
@@ -40,7 +44,7 @@
     <div class="search-panel" role="dialog" aria-modal="true" aria-label="Search course content">
       <div class="search-input-row">
         <span class="search-input-icon" aria-hidden="true">🔎</span>
-        <input type="text" id="search-input" class="search-input" placeholder="Search topics, terms, concepts…" autocomplete="off" spellcheck="false" />
+        <input type="text" id="search-input" class="search-input" placeholder="Search every track…" autocomplete="off" spellcheck="false" />
         <button type="button" id="search-close" class="search-close" aria-label="Close search">Esc</button>
       </div>
       <div id="search-results" class="search-results" role="listbox" aria-label="Search results"></div>

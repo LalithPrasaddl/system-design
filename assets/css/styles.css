@@ -78,10 +78,28 @@ a {
   border-bottom: 1px solid var(--border);
 }
 
-.brand {
+.track-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.track-switcher:hover {
+  color: var(--accent);
+}
+
+.track-switcher-back {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.track-name {
+  margin-top: 0.15rem;
   font-weight: 700;
   font-size: 1.05rem;
-  text-decoration: none;
   color: var(--text);
 }
 
@@ -1015,6 +1033,168 @@ body.search-open {
   color: var(--text-muted);
 }
 
+/* Hub — the front door: one card per published track */
+body.hub-view .sidebar,
+body.hub-view .sidebar-toggle,
+body.hub-view .sidebar-scrim {
+  display: none;
+}
+
+body:not(.tracking-on) .track-card-progress {
+  display: none;
+}
+
+.hub {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.hub-header {
+  margin-bottom: 2.5rem;
+}
+
+.hub-header h1 {
+  margin: 0;
+  font-size: 2.1rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.hub-tagline {
+  margin: 0.6rem 0 0;
+  max-width: 48ch;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.track-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.4rem 1.4rem 1.1rem;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--track-color, var(--accent));
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.track-card:nth-child(4n+1) { --track-color: var(--group-color-1); }
+.track-card:nth-child(4n+2) { --track-color: var(--group-color-2); }
+.track-card:nth-child(4n+3) { --track-color: var(--group-color-3); }
+.track-card:nth-child(4n+4) { --track-color: var(--group-color-4); }
+
+.track-card:hover {
+  border-color: var(--track-color, var(--accent));
+  transform: translateY(-2px);
+}
+
+.track-card-title {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+}
+
+.track-card-blurb {
+  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.track-card-modules {
+  list-style: none;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  flex: 1;
+}
+
+.track-card-modules li {
+  position: relative;
+  padding-left: 0.85rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.track-card-modules li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.68em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--track-color, var(--accent));
+  opacity: 0.6;
+}
+
+.track-card-modules:empty::after {
+  content: "In progress";
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.track-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.track-card-go {
+  margin-left: auto;
+  color: var(--track-color, var(--accent));
+  font-size: 0.95rem;
+}
+
+.hub-foot {
+  margin: 2.5rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.hub-foot a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.hub-foot a:hover {
+  color: var(--accent);
+}
+
+/* Site-level pages — no track, so no sidebar and no progress UI */
+.site-page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 1.75rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.site-page-back:hover {
+  color: var(--accent);
+}
+
+.site-page h1 {
+  margin-top: 0;
+}
+
 /* Mobile */
 @media (max-width: 860px) {
   .sidebar-toggle {
@@ -1045,5 +1225,13 @@ body.search-open {
 
   .content {
     padding: 4.5rem 1.25rem 5rem;
+  }
+
+  body.hub-view .content {
+    padding-top: 2rem;
+  }
+
+  .hub-header h1 {
+    font-size: 1.7rem;
   }
 }
