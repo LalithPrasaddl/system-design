@@ -2,13 +2,15 @@
 
 Interactive, textbook-depth material on how things are designed, split into independent **tracks**. Each track is its own self-contained path with its own modules, ordering, and progress; the site's front door is a hub that lists them. No prior experience assumed.
 
-Current tracks:
+Current tracks — case studies are their own track alongside the track they draw on, so a reader can come straight in at the worked-system level without going through the building blocks first:
 
 | Track | Status | Covers |
 | --- | --- | --- |
-| System Design | published | Client-server basics through building blocks (caching, databases, replication, consensus, queues) to full case studies |
+| System Design | published | Client-server basics through the building blocks — caching, databases, replication, consensus, queues |
+| System Design Case Studies | published | Whole systems built up in stages, from the smallest version that works to one that holds under scale |
 | AI & LLMs | published | What language models do, and the systems around them — retrieval, tools, agents, serving |
-| Electronics | unpublished | Analog and digital hardware design (no content yet) |
+| AI Case Studies | published | End-to-end AI systems, with evaluation treated as part of the architecture |
+| Electronics | unpublished | Analog and digital hardware design |
 
 ## Stack
 

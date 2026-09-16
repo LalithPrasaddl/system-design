@@ -229,10 +229,18 @@
               "file": "frontend-building-blocks/micro-frontends.md"
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "systems-case-studies",
+      "title": "System Design Case Studies",
+      "blurb": "Real systems built from the smallest version that works up to one that holds under scale — each stage interactive, with narrated request flows and components you can break to see what depends on them.",
+      "published": true,
+      "modules": [
         {
           "id": "case-studies",
-          "title": "4. Case Studies",
+          "title": "Case Studies",
           "sections": [
             {
               "id": "url-shortener",
@@ -339,7 +347,15 @@
               "file": "llms-applied-ai/orchestration-harnesses.md"
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "ai-case-studies",
+      "title": "AI Case Studies",
+      "blurb": "End-to-end AI systems — retrieval, ranking, serving — built up in stages, with evaluation treated as part of the architecture rather than a step after it.",
+      "published": true,
+      "modules": [
         {
           "id": "ai-case-studies",
           "title": "Case Studies",
@@ -358,7 +374,19 @@
       "title": "Electronics",
       "blurb": "Analog and digital hardware design — signals, power, logic, and the boards they live on.",
       "published": false,
-      "modules": []
+      "modules": [
+        {
+          "id": "electronics-foundations",
+          "title": "1. Foundations",
+          "sections": [
+            {
+              "id": "charge-current-voltage",
+              "title": "Charge, Current & Voltage",
+              "file": "electronics/charge-current-voltage.md"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -46,13 +46,12 @@ The same kind of components as above, but on the client side of the request.
 - Frontend Security
 - Micro-Frontends & Multi-Team Scaling
 
-## 4. Case Studies
-Real systems, built up from the smallest working version to a design that holds under scale — a URL shortener, a rate limiter, a chat system, a news feed, a distributed cache, a ride-hailing dispatch system, a video-streaming platform, and more. Each one is interactive: you can see the system's components and data flow directly, and see what changes (and what breaks) as pieces are added or removed.
-
-## 5. Wrap-Up
+## 4. Wrap-Up
 - A Framework for Reasoning Under Ambiguity
 - Glossary
 
 ---
+
+Whole systems, built up from the smallest working version to a design that holds under scale — a URL shortener, a rate limiter, a chat system, a news feed, a distributed cache, a ride-hailing dispatch system, a video-streaming platform, and more — are their own track: [System Design Case Studies](#/systems-case-studies/url-shortener). Each one is interactive: you can follow a request through the system one step at a time, and break individual components to see what depends on them. They lean on everything above, so the two tracks are best read alongside each other.
 
 The mechanics behind LLM-based products — training, serving, retrieval, tools, and agents — are covered in their own track: [AI & LLMs](#/ai/llm-vocabulary).

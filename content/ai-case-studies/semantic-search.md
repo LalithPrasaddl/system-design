@@ -783,7 +783,7 @@ Three problems that all come from the index being derived data. It is a copy of 
 <strong>If the vector index fails:</strong> the query falls back to the keyword index from Stage 3, and ingestion buffers in the queue until the index returns. Degraded search plus a growing backlog, rather than an outage — but note that the backlog has a limit, and past it the queue starts dropping or the source stops accepting writes.
 </div>
 <div class="failure-impact is-hidden" data-component="meta4">
-<strong>If the metadata store fails:</strong> permissions cannot be confirmed and chunk text cannot be fetched, so the search returns nothing. This is the one component in the system that must <strong>fail closed</strong>. The rate limiter case study fails open on purpose, because allowing an unmetered request is cheaper than dropping a legitimate one — here the equivalent trade is showing someone content they are not cleared for, and that is never the cheaper option ([Rate Limiter as a Service](#/systems/rate-limiter) works through the opposite decision).
+<strong>If the metadata store fails:</strong> permissions cannot be confirmed and chunk text cannot be fetched, so the search returns nothing. This is the one component in the system that must <strong>fail closed</strong>. The rate limiter case study fails open on purpose, because allowing an unmetered request is cheaper than dropping a legitimate one — here the equivalent trade is showing someone content they are not cleared for, and that is never the cheaper option ([Rate Limiter as a Service](#/systems-case-studies/rate-limiter) works through the opposite decision).
 </div>
 </div>
 
@@ -994,7 +994,7 @@ Search queries vary enormously in cost, so limiting by request count is the wron
 - A very long query is slow to embed and matches a wide region of the space.
 - A highly selective filter can degrade the graph walk into a scan.
 
-Limit by **cost units**, not by requests, with expensive operations consuming more of the allowance ([Rate Limiter as a Service](#/systems/rate-limiter) builds exactly this mechanism, and the `cost` field in its API is for this case).
+Limit by **cost units**, not by requests, with expensive operations consuming more of the allowance ([Rate Limiter as a Service](#/systems-case-studies/rate-limiter) builds exactly this mechanism, and the `cost` field in its API is for this case).
 
 ### Corpus extraction
 
