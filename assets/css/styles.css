@@ -1503,3 +1503,218 @@ body:not(.tracking-on) .track-card-progress {
     font-size: 1.7rem;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Schematic symbols (d-sym-*)
+   The rounded `.d-actor-box` vocabulary draws services talking to each other,
+   which is the wrong shape for a circuit. These are the primitives a schematic
+   needs: plain strokes, filled junction dots, and component bodies that sit on
+   a wire rather than boxes that sit on a page.
+   --------------------------------------------------------------------------- */
+.diagram-wrap .d-sym {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* A plain conductor. Neutral by default so that current, when a diagram wants
+   to show it, is the only thing wearing the accent color. */
+.diagram-wrap .d-wire {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.diagram-wrap .d-wire.is-live {
+  stroke: var(--accent);
+}
+
+.diagram-wrap .d-wire.is-dead {
+  stroke: var(--border);
+  stroke-dasharray: 4 4;
+}
+
+/* Component bodies (resistor rectangle, chip outline) sit on top of the wire,
+   so they need an opaque fill to break it. */
+.diagram-wrap .d-sym-body {
+  fill: var(--bg);
+  stroke: var(--text);
+  stroke-width: 1.6;
+}
+
+.diagram-wrap .d-sym-body.is-accent {
+  stroke: var(--accent);
+  fill: color-mix(in srgb, var(--accent) 10%, var(--bg));
+}
+
+/* Capacitor plates and battery cell bars — deliberately heavier than a wire. */
+.diagram-wrap .d-plate {
+  stroke: var(--text);
+  stroke-width: 3;
+  stroke-linecap: butt;
+}
+
+.diagram-wrap .d-batt-long {
+  stroke: var(--text);
+  stroke-width: 2.5;
+  stroke-linecap: butt;
+}
+
+.diagram-wrap .d-batt-short {
+  stroke: var(--text);
+  stroke-width: 2.5;
+  stroke-linecap: butt;
+}
+
+/* Junction dot. Two crossing wires are only connected where one of these is. */
+.diagram-wrap .d-node {
+  fill: var(--text);
+  stroke: none;
+}
+
+.diagram-wrap .d-node-open {
+  fill: var(--bg);
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+
+.diagram-wrap .d-gnd {
+  stroke: var(--text);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.diagram-wrap .d-sym-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Live numbers — anything a slider can change wears the accent, so it is
+   obvious at a glance which figures on a schematic are readouts. */
+.diagram-wrap .d-sym-value {
+  fill: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.diagram-wrap .d-sym-note {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Voltage/charge level bars, driven by data-calc-attr bindings. */
+.diagram-wrap .d-level {
+  fill: var(--accent);
+  opacity: 0.55;
+}
+
+.diagram-wrap .d-level-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1.2;
+}
+
+/* ---------------------------------------------------------------------------
+   Value sliders (data-calc)
+   Drag an input, every bound number and bar on the schematic recomputes. The
+   point is that Ohm's law, the divider ratio and the RC curve stop being
+   formulas to trust and become things you can push on.
+   --------------------------------------------------------------------------- */
+.calc-controls {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.9rem 0 0.2rem;
+}
+
+.calc-row {
+  display: grid;
+  grid-template-columns: minmax(80px, auto) 1fr minmax(78px, auto);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calc-row label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.calc-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.calc-row .calc-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.calc-out {
+  flex: 1 1 auto;
+  min-width: 120px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.calc-out-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.calc-out-value {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-out.is-warn .calc-out-value {
+  color: var(--fail);
+}
+
+.calc-note {
+  margin: 0.7rem 0 0;
+  padding: 0.55rem 0.7rem;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+.calc-note.is-hidden {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .calc-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .calc-row input[type="range"] {
+    grid-column: 1 / -1;
+  }
+}

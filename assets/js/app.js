@@ -375,6 +375,7 @@
     initCaseStudyStages(contentEl);
     initFailToggles(contentEl);
     initFlowPlayers(contentEl);
+    initCalcs(contentEl);
 
     document.title = `${sec.title} · ${track.title} · ${manifest.siteTitle}`;
     contentEl.focus();
@@ -710,6 +711,137 @@
 
   function positionToken(token, x, y) {
     token.g.setAttribute("transform", `translate(${x}, ${y})`);
+  }
+
+  /**
+   * Value sliders. A `.diagram-wrap[data-calc]` carries a JSON spec of inputs
+   * (each becomes a slider) and outputs (each a formula over the input ids).
+   * Anything in the SVG marked `data-calc-out="<id>"` gets that output's
+   * formatted text, and anything marked `data-calc-attr="<attr>"` with a
+   * `data-calc-expr` gets a recomputed geometry attribute — which is what lets
+   * a bar grow or a curve redraw as the slider moves.
+   *
+   * Formulas are authored in this repo's own content, never entered by a
+   * reader, so compiling them with `new Function` is reading our own source.
+   */
+  function initCalcs(container) {
+    container.querySelectorAll(".diagram-wrap[data-calc]").forEach((wrap) => {
+      const specEl = wrap.querySelector("script.calc-spec");
+      if (!specEl) return;
+
+      let spec;
+      try {
+        spec = JSON.parse(specEl.textContent);
+      } catch (e) {
+        return;
+      }
+      const inputs = (spec && spec.inputs) || [];
+      if (!inputs.length) return;
+
+      const ids = inputs.map((i) => i.id);
+      const compile = (expr) => {
+        try {
+          return new Function(...ids, `"use strict"; return (${expr});`);
+        } catch (e) {
+          return () => NaN;
+        }
+      };
+
+      const outputs = (spec.outputs || []).map((o) => ({ ...o, fn: compile(o.expr) }));
+      const notes = (spec.notes || []).map((n) => ({ ...n, fn: compile(n.when) }));
+
+      const bindings = [];
+      wrap.querySelectorAll("[data-calc-expr]").forEach((el) => {
+        bindings.push({
+          el,
+          attr: el.getAttribute("data-calc-attr"),
+          digits: Number(el.getAttribute("data-calc-digits") || 2),
+          fn: compile(el.getAttribute("data-calc-expr")),
+        });
+      });
+
+      const controls = document.createElement("div");
+      controls.className = "calc-controls";
+      const sliders = inputs.map((input) => {
+        const row = document.createElement("div");
+        row.className = "calc-row";
+        const inputId = `calc-${Math.random().toString(36).slice(2, 9)}`;
+        row.innerHTML =
+          `<label for="${inputId}">${escapeHtml(input.label)}</label>` +
+          `<input type="range" id="${inputId}" min="${input.min}" max="${input.max}"` +
+          ` step="${input.step}" value="${input.value}">` +
+          `<span class="calc-value"></span>`;
+        controls.appendChild(row);
+        return { input, el: row.querySelector("input"), valueEl: row.querySelector(".calc-value") };
+      });
+
+      const readout = document.createElement("div");
+      readout.className = "calc-readout";
+      const outEls = outputs.map((out) => {
+        const box = document.createElement("div");
+        box.className = "calc-out";
+        box.innerHTML =
+          `<span class="calc-out-label">${escapeHtml(out.label)}</span>` +
+          `<span class="calc-out-value"></span>`;
+        readout.appendChild(box);
+        return { out, box, valueEl: box.querySelector(".calc-out-value") };
+      });
+
+      const noteEls = notes.map((note) => {
+        const el = document.createElement("p");
+        el.className = "calc-note is-hidden";
+        el.innerHTML = note.text;
+        return { note, el };
+      });
+
+      const caption = wrap.querySelector(".diagram-caption");
+      wrap.insertBefore(controls, caption || null);
+      if (outEls.length) wrap.insertBefore(readout, caption || null);
+      noteEls.forEach((n) => wrap.insertBefore(n.el, caption || null));
+
+      function recompute() {
+        const values = sliders.map((s) => Number(s.el.value));
+
+        sliders.forEach((s, i) => {
+          s.valueEl.textContent = formatCalc(values[i], s.input.digits, s.input.unit, s.input.scale);
+        });
+
+        outEls.forEach((o) => {
+          const v = o.out.fn(...values);
+          o.valueEl.textContent = formatCalc(v, o.out.digits, o.out.unit, o.out.scale);
+          if (o.out.warnAbove != null) o.box.classList.toggle("is-warn", v > o.out.warnAbove);
+          wrap.querySelectorAll(`[data-calc-out="${o.out.id}"]`).forEach((el) => {
+            el.textContent = formatCalc(v, o.out.digits, o.out.unit, o.out.scale);
+          });
+        });
+
+        bindings.forEach((b) => {
+          const v = b.fn(...values);
+          if (!isFinite(v)) return;
+          if (b.attr) b.el.setAttribute(b.attr, String(Number(v.toFixed(b.digits))));
+          else b.el.textContent = String(Number(v.toFixed(b.digits)));
+        });
+
+        noteEls.forEach((n) => {
+          n.el.classList.toggle("is-hidden", !n.note.fn(...values));
+        });
+      }
+
+      sliders.forEach((s) => s.el.addEventListener("input", recompute));
+      recompute();
+    });
+  }
+
+  /** Scale first (so a spec can hold volts and show millivolts), then fix digits. */
+  function formatCalc(value, digits, unit, scale) {
+    if (!isFinite(value)) return "—";
+    const scaled = value * (scale == null ? 1 : scale);
+    const d = digits == null ? 2 : digits;
+    const text = Math.abs(scaled) >= 1000 ? scaled.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: d,
+    }) : scaled.toFixed(d);
+    return unit ? `${text} ${unit}` : text;
   }
 
   function initFlowPlayers(container) {

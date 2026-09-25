@@ -372,8 +372,8 @@
     {
       "id": "electronics",
       "title": "Electronics",
-      "blurb": "Analog and digital hardware design — signals, power, logic, and the boards they live on.",
-      "published": false,
+      "blurb": "From what is actually moving in a wire up to a working CPU — charge, transistors, logic gates, memory, and the machine they build.",
+      "published": true,
       "modules": [
         {
           "id": "electronics-foundations",
@@ -383,6 +383,37 @@
               "id": "charge-current-voltage",
               "title": "Charge, Current & Voltage",
               "file": "electronics/charge-current-voltage.md"
+            },
+            {
+              "id": "resistance-ohms-law",
+              "title": "Resistance, Ohm's Law & Power",
+              "file": "electronics/resistance-ohms-law.md"
+            },
+            {
+              "id": "circuits-voltage-divider",
+              "title": "Circuits: Series, Parallel & the Voltage Divider",
+              "file": "electronics/circuits-voltage-divider.md"
+            },
+            {
+              "id": "capacitors-and-time",
+              "title": "Capacitors & Time",
+              "file": "electronics/capacitors-and-time.md"
+            },
+            {
+              "id": "signals-and-waveforms",
+              "title": "Signals & Waveforms",
+              "file": "electronics/signals-and-waveforms.md"
+            }
+          ]
+        },
+        {
+          "id": "electronics-semiconductors",
+          "title": "2. Semiconductors",
+          "sections": [
+            {
+              "id": "silicon-doping",
+              "title": "Why Silicon? Doping & Semiconductors",
+              "file": "electronics/silicon-doping.md"
             }
           ]
         }
