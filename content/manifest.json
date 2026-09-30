@@ -251,6 +251,11 @@
               "id": "rate-limiter",
               "title": "Rate Limiter as a Service",
               "file": "case-studies/rate-limiter.md"
+            },
+            {
+              "id": "distributed-cache",
+              "title": "Distributed Cache",
+              "file": "case-studies/distributed-cache.md"
             }
           ]
         }
