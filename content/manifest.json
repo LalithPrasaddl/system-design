@@ -256,6 +256,11 @@
               "id": "distributed-cache",
               "title": "Distributed Cache",
               "file": "case-studies/distributed-cache.md"
+            },
+            {
+              "id": "distributed-id-generator",
+              "title": "Distributed ID Generator",
+              "file": "case-studies/distributed-id-generator.md"
             }
           ]
         }
