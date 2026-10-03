@@ -261,6 +261,11 @@
               "id": "distributed-id-generator",
               "title": "Distributed ID Generator",
               "file": "case-studies/distributed-id-generator.md"
+            },
+            {
+              "id": "news-feed",
+              "title": "Social Media News Feed",
+              "file": "case-studies/news-feed.md"
             }
           ]
         }
