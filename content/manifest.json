@@ -266,6 +266,11 @@
               "id": "news-feed",
               "title": "Social Media News Feed",
               "file": "case-studies/news-feed.md"
+            },
+            {
+              "id": "notification-system",
+              "title": "Notification System",
+              "file": "case-studies/notification-system.md"
             }
           ]
         }
