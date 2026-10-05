@@ -271,6 +271,11 @@
               "id": "notification-system",
               "title": "Notification System",
               "file": "case-studies/notification-system.md"
+            },
+            {
+              "id": "chat-messaging",
+              "title": "Chat / Messaging App",
+              "file": "case-studies/chat-messaging.md"
             }
           ]
         }
