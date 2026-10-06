@@ -276,6 +276,11 @@
               "id": "chat-messaging",
               "title": "Chat / Messaging App",
               "file": "case-studies/chat-messaging.md"
+            },
+            {
+              "id": "distributed-task-queue",
+              "title": "Distributed Task Queue",
+              "file": "case-studies/distributed-task-queue.md"
             }
           ]
         }
