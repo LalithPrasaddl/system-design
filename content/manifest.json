@@ -281,6 +281,11 @@
               "id": "distributed-task-queue",
               "title": "Distributed Task Queue",
               "file": "case-studies/distributed-task-queue.md"
+            },
+            {
+              "id": "distributed-job-scheduler",
+              "title": "Distributed Job Scheduler",
+              "file": "case-studies/distributed-job-scheduler.md"
             }
           ]
         }

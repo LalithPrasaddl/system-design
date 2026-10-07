@@ -34,7 +34,7 @@ Durable storage of tasks, claiming and leases, crash recovery, retries and backo
 
 ### Out of scope
 
-**Recurring schedules** ("run this every night at 2am"), which are a scheduler that enqueues into this queue. **Workflows** of dependent steps with their own state. **Event streams** that many independent consumers each read in full — that is a log, not a queue, and the Deep Dives tab explains the difference. **Running the workers' code**: the queue hands out tasks; teams run their own workers.
+**Recurring schedules** ("run this every night at 2am"), which are a [scheduler](#/systems-case-studies/distributed-job-scheduler) that enqueues into this queue. **Workflows** of dependent steps with their own state. **Event streams** that many independent consumers each read in full — that is a log, not a queue, and the Deep Dives tab explains the difference. **Running the workers' code**: the queue hands out tasks; teams run their own workers.
 
 <!-- tab:scale-estimates:Scale Estimates -->
 
