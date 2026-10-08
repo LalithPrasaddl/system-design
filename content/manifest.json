@@ -286,6 +286,11 @@
               "id": "distributed-job-scheduler",
               "title": "Distributed Job Scheduler",
               "file": "case-studies/distributed-job-scheduler.md"
+            },
+            {
+              "id": "web-crawler",
+              "title": "Web Crawler",
+              "file": "case-studies/web-crawler.md"
             }
           ]
         }
