@@ -291,6 +291,11 @@
               "id": "web-crawler",
               "title": "Web Crawler",
               "file": "case-studies/web-crawler.md"
+            },
+            {
+              "id": "distributed-lock-service",
+              "title": "Distributed Lock Service",
+              "file": "case-studies/distributed-lock-service.md"
             }
           ]
         }
