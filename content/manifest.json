@@ -296,6 +296,11 @@
               "id": "distributed-lock-service",
               "title": "Distributed Lock Service",
               "file": "case-studies/distributed-lock-service.md"
+            },
+            {
+              "id": "payment-processing",
+              "title": "Payment Processing",
+              "file": "case-studies/payment-processing.md"
             }
           ]
         }
