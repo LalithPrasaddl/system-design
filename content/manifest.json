@@ -301,6 +301,11 @@
               "id": "payment-processing",
               "title": "Payment Processing",
               "file": "case-studies/payment-processing.md"
+            },
+            {
+              "id": "checkout-inventory",
+              "title": "E-commerce Checkout & Inventory",
+              "file": "case-studies/checkout-inventory.md"
             }
           ]
         }
