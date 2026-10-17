@@ -311,6 +311,11 @@
               "id": "ticket-booking",
               "title": "Ticket Booking",
               "file": "case-studies/ticket-booking.md"
+            },
+            {
+              "id": "search-autocomplete",
+              "title": "Search Autocomplete",
+              "file": "case-studies/search-autocomplete.md"
             }
           ]
         }
