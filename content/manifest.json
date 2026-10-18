@@ -316,6 +316,11 @@
               "id": "search-autocomplete",
               "title": "Search Autocomplete",
               "file": "case-studies/search-autocomplete.md"
+            },
+            {
+              "id": "proximity-search",
+              "title": "Proximity Search",
+              "file": "case-studies/proximity-search.md"
             }
           ]
         }
