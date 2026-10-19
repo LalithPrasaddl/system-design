@@ -321,6 +321,11 @@
               "id": "proximity-search",
               "title": "Proximity Search",
               "file": "case-studies/proximity-search.md"
+            },
+            {
+              "id": "ride-sharing-dispatch",
+              "title": "Ride-Sharing Dispatch",
+              "file": "case-studies/ride-sharing-dispatch.md"
             }
           ]
         }
