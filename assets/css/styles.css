@@ -1718,3 +1718,243 @@ body:not(.tracking-on) .track-card-progress {
     grid-column: 1 / -1;
   }
 }
+
+/* Debug the Design drills: charts, incident card, evidence panels, notes, hints, layered reveals */
+.diagram-wrap .d-gridline {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.diagram-wrap .d-band {
+  fill: var(--fail-soft);
+}
+
+.diagram-wrap .d-series {
+  fill: none;
+  stroke-width: 2.25;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.diagram-wrap .d-series-a {
+  stroke: var(--group-color-1);
+}
+
+.diagram-wrap .d-series-b {
+  stroke: var(--group-color-2);
+}
+
+.diagram-wrap .d-series-label-a {
+  fill: var(--group-color-1);
+  font-weight: 600;
+}
+
+.incident-card {
+  margin: 1.5rem 0;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--fail);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: var(--fail-soft);
+}
+
+.incident-card p {
+  margin: 0.5rem 0 0;
+}
+
+.incident-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.incident-sev {
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  background: var(--fail);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.page details.evidence,
+.page details.hint,
+.page details.reveal {
+  margin: 0.75rem 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.page details.evidence > summary,
+.page details.hint > summary,
+.page details.reveal > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  user-select: none;
+}
+
+.page details.evidence > summary::-webkit-details-marker,
+.page details.hint > summary::-webkit-details-marker,
+.page details.reveal > summary::-webkit-details-marker {
+  display: none;
+}
+
+.page details.evidence > summary::before {
+  content: "▸";
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.page details.evidence[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.page details.evidence > summary:hover,
+.page details.hint > summary:hover,
+.page details.reveal > summary:hover {
+  background: var(--accent-soft);
+}
+
+.page details.evidence[open] > summary,
+.page details.hint[open] > summary,
+.page details.reveal[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.page details.evidence > :not(summary),
+.page details.hint > :not(summary),
+.page details.reveal > :not(summary) {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.page details.reveal {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.page details.reveal > summary::after {
+  content: "Reveal";
+  margin-left: auto;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+.page details.reveal[open] > summary::after {
+  content: "Hide";
+  background: var(--bg-sidebar);
+  color: var(--text-muted);
+}
+
+.reveal-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+.drill-notes {
+  margin: 1.25rem 0 2rem;
+}
+
+.drill-notes label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.drill-notes textarea {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.drill-notes textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.drill-notes-hint {
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.drill-callout {
+  margin: 1.25rem 0;
+  padding: 0.65rem 0.9rem;
+  border-left: 3px solid var(--fail);
+  background: var(--fail-soft);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.9rem;
+}
+
+.page details.hint {
+  border-style: dashed;
+  background: var(--bg-sidebar);
+}
+
+.page details.hint > summary {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.page details.hint > summary::after {
+  content: "Show";
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.page details.hint[open] > summary::after {
+  content: "Hide";
+  color: var(--text-muted);
+}
+
+.drill-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  margin: -0.5rem 0 1.5rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.drill-level {
+  padding: 0.12rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.drill-level[data-level="warmup"] { color: var(--group-color-3); }
+.drill-level[data-level="intermediate"] { color: var(--group-color-2); }
+.drill-level[data-level="hard"] { color: var(--fail); }

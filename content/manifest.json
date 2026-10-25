@@ -332,6 +332,30 @@
       ]
     },
     {
+      "id": "debug-the-design",
+      "title": "Debug the Design",
+      "blurb": "Systems from the case studies, hit by incidents their designs did not plan for. Read the symptoms, work out the cause and the fix yourself, then reveal the answer one layer at a time. Each drill is marked Warm-up, Intermediate or Hard.",
+      "published": true,
+      "modules": [
+        {
+          "id": "drills-distributed-cache",
+          "title": "Distributed Cache",
+          "sections": [
+            {
+              "id": "cache-stale-prices",
+              "title": "Prices That Won't Update",
+              "file": "drills/cache-stale-prices.md"
+            },
+            {
+              "id": "cache-after-db-failover",
+              "title": "After the Database Failover",
+              "file": "drills/cache-after-db-failover.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "ai",
       "title": "AI & LLMs",
       "blurb": "What language models actually do, and how the systems around them — retrieval, tools, agents, serving — are designed.",

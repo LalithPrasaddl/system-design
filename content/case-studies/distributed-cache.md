@@ -2,6 +2,8 @@
 
 A distributed cache is a key-value store that holds everything in memory, spread across many machines, so an application can read in well under a millisecond what would take a database several. Storing bytes in RAM is the easy part. The hard part is deciding which machine owns each key, keeping that answer stable while machines join and die, and noticing the moment the cache stops being optional — because once the database behind it is sized for a 95% hit ratio, losing the cache is an outage, not a slowdown.
 
+<div class="drill-callout"><strong>Debug the Design:</strong> two incidents this finished design was not built for — <a href="#/debug-the-design/cache-stale-prices">Prices That Won't Update</a> (warm-up) and <a href="#/debug-the-design/cache-after-db-failover">After the Database Failover</a> (hard). Work out the cause and the fix yourself before revealing the answer.</div>
+
 <!-- tab:requirements:Requirements -->
 
 ## Requirements

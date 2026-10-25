@@ -376,6 +376,7 @@
     initFailToggles(contentEl);
     initFlowPlayers(contentEl);
     initCalcs(contentEl);
+    initDrillNotes(contentEl, path);
 
     document.title = `${sec.title} · ${track.title} · ${manifest.siteTitle}`;
     contentEl.focus();
@@ -620,6 +621,25 @@
    * breaks. Any connector marked `data-depends-on="id"` gets a degraded
    * (dashed/red) style while that component is failed.
    */
+  /**
+   * Break & Fix drills: the reader's own answer, kept per page in this
+   * browser so it is still there when they come back to compare it with
+   * the reveals.
+   */
+  function initDrillNotes(container, path) {
+    const key = `drill-notes:${path}`;
+    container.querySelectorAll(".drill-notes textarea").forEach((ta) => {
+      try {
+        ta.value = localStorage.getItem(key) || "";
+      } catch (e) {}
+      ta.addEventListener("input", () => {
+        try {
+          localStorage.setItem(key, ta.value);
+        } catch (e) {}
+      });
+    });
+  }
+
   function initFailToggles(container) {
     container.querySelectorAll("[data-fail-toggle]").forEach((el) => {
       el.addEventListener("click", () => {

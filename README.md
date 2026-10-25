@@ -8,6 +8,7 @@ Current tracks — case studies are their own track alongside the track they dra
 | --- | --- | --- |
 | System Design | published | Client-server basics through the building blocks — caching, databases, replication, consensus, queues |
 | System Design Case Studies | published | Whole systems built up in stages, from the smallest version that works to one that holds under scale |
+| Debug the Design | published | Incidents run on the finished case-study designs: symptoms and evidence, the reader's own diagnosis, then layered reveals |
 | AI & LLMs | published | What language models do, and the systems around them — retrieval, tools, agents, serving |
 | AI Case Studies | published | End-to-end AI systems, with evaluation treated as part of the architecture |
 | Electronics | unpublished | Analog and digital hardware design |
@@ -141,6 +142,20 @@ A diagram marked `data-flow-player` becomes an interactive, narrated walkthrough
 Per step: `el` is the connector's `id`; `payload` is the labelled pill that rides along it; `ms` adds to the running latency readout; `text` is the caption; `set` writes into a state panel (`panelId.rowKey`). `altEl` (with optional `altText`, `altMs`, `altSet`) names a fallback connector to take when `el`'s component has been failed — that is how a load balancer routes around a dead app server instead of the flow simply stopping. A flow's `nodes` lists component ids to keep lit; everything else on the diagram dims while that flow is selected.
 
 Connectors must carry `data-depends-on` for failure handling to work, and both `<line>` and `<path>` elements are supported. Latency numbers are server-side only by convention — client network round trips dominate every path and would bury the differences the diagram exists to show.
+
+## Debug the Design drills
+
+A drill takes a finished case-study design and breaks it in a way the case study did not cover, such as an operational event, a load shape, or a wrong assumption. If the hole sits at a point the case study's stages already fixed, the drill only replays the case study. Drills live under `content/drills/`, with one module per case study in the `debug-the-design` track, and each case study links to its drills from a `.drill-callout` above its tabs.
+
+There is no grading and no backend. A page has these parts, in order:
+
+1. **Framing and incident:** a `.drill-meta` line under the title (difficulty badge `data-level="warmup|intermediate|hard"`, case study, topic), one paragraph tying it to the case study, an `.incident-card`, a `.stat-grid` of symptoms, and a main chart. It describes symptoms only and never names the concept.
+2. **Investigate:** `<details class="evidence">` panels, one per place an engineer could look, with some red herrings among them.
+3. **Your turn:** the questions, plus `<div class="drill-notes">` with a textarea (`initDrillNotes` saves it to `localStorage` per page), then a "Stuck?" ladder of `<details class="hint">` panels that point to evidence without giving the answer.
+4. **Reveal:** `<details class="reveal">` layers, opened in order. The core three are root cause, the fixes people try first and why they fall short, and the right fix (moving from "fine for now" to what the design should do, ending with how to catch it next time). A Hard drill may split "right now" out as a fourth. Root-cause reveals for Hard drills open with a plain-language picture before the numbers.
+5. **Concepts used:** links back to Building Blocks pages.
+
+Markdown inside a `<details>` block needs a blank line after `<summary>…</summary>` and before `</details>`. A diagram inside one still must not contain blank lines. Charts are hand-built SVG using `.d-gridline`, `.d-band` (an incident window), and `.d-series` with `.d-series-a` / `.d-series-b`.
 
 ## Status
 
