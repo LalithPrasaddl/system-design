@@ -326,6 +326,11 @@
               "id": "ride-sharing-dispatch",
               "title": "Ride-Sharing Dispatch",
               "file": "case-studies/ride-sharing-dispatch.md"
+            },
+            {
+              "id": "collaborative-editing",
+              "title": "Collaborative Document Editing",
+              "file": "case-studies/collaborative-editing.md"
             }
           ]
         }
