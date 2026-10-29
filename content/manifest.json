@@ -331,6 +331,11 @@
               "id": "collaborative-editing",
               "title": "Collaborative Document Editing",
               "file": "case-studies/collaborative-editing.md"
+            },
+            {
+              "id": "file-storage-sync",
+              "title": "File Storage & Sync",
+              "file": "case-studies/file-storage-sync.md"
             }
           ]
         }
