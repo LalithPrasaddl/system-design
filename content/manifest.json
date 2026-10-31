@@ -336,6 +336,11 @@
               "id": "file-storage-sync",
               "title": "File Storage & Sync",
               "file": "case-studies/file-storage-sync.md"
+            },
+            {
+              "id": "video-streaming",
+              "title": "Video Streaming Platform",
+              "file": "case-studies/video-streaming.md"
             }
           ]
         }
